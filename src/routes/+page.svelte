@@ -1,2 +1,14 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+	import Icon from '$lib/Icon.svelte';
+</script>
+
+<header>
+	<nav>
+		<Icon name="notepad" width="4em"></Icon>
+		<h1>NotesMan</h1>
+		<div class="links">
+			<a href="/">Log In</a>
+			<a href="/">Sign Up</a>
+		</div>
+	</nav>
+</header>
