@@ -7,6 +7,7 @@
 	import GoalsView from '$lib/component/GoalsView.svelte';
 	import CreateMenu from '$lib/component/CreateMenu.svelte';
 	import NoteMenu from '$lib/component/NoteMenu.svelte';
+	import GoalEditMenu from '$lib/component/GoalEditMenu.svelte';
 	import '$lib/style.scss';
 	import * as state from '$lib/state.js';
 
@@ -59,6 +60,7 @@
 	>
 		<CreateMenu {data} {state}></CreateMenu>
 		{#if data.noteMenuOn}<NoteMenu {data} {state}></NoteMenu>{/if}
+		{#if data.goalEditMenuOn}<GoalEditMenu {data} {state}></GoalEditMenu>{/if}
 	</div>
 {/if}
 

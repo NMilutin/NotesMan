@@ -1,19 +1,18 @@
 <script>
 	export let data;
-  export let state;
+	export let state;
 </script>
 
 <div class="notes__container">
-	{#each data.notes as note, i}
+	{#each data.notes as note}
 		<div class="note-wrapper">
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div
-				data-note-index={i}
 				class="note"
 				style={`--note-color:${note.color.hex || '#DFDFCF'};`}
 				on:click={function (e) {
-					state.showNote(data.notes.at(+e.target.closest('.note').dataset.noteIndex));
+					state.showNote(note);
 				}}
 			>
 				<h2>{note.name}</h2>

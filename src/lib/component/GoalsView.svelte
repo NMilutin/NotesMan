@@ -39,6 +39,9 @@
 					</div>
 				{/each}
 			</div>
+			<button class="goal-edit" on:click={function () {state.showGoalEditMenu(goal)}}
+				><Icon name="note-edit" width="1.5em"></Icon></button
+			>
 		</div>
 	{/each}
 </div>
@@ -59,6 +62,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 1em;
+			position: relative;
 			h2 {
 				font-size: 3em;
 			}
@@ -94,6 +98,18 @@
 						cursor: pointer;
 					}
 				}
+			}
+			.goal-edit {
+				position: absolute;
+				top: 0.75em;
+				right: 0.75em;
+				background-color: rgba(255, 255, 255, 0.25);
+				border-radius: 50%;
+				width: 2.5em;
+				height: 2.5em;
+				padding: 0.3em;
+				border: #343434 solid 2px;
+				cursor: pointer;
 			}
 		}
 	}

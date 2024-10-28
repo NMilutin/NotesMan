@@ -35,7 +35,8 @@ export const datastore = writable({
 	goalCreateMenuOn: false,
 	noteMenuOn: false,
 	editModeOn: false,
-	taskDatePickerOn: false
+	taskDatePickerOn: false,
+	goalEditMenuOn: false
 });
 let data;
 datastore.subscribe((value) => {
@@ -144,6 +145,7 @@ export const hideOverlay = function () {
 		data.goalCreateMenuOn = false;
 		data.editModeOn = false;
 		data.noteMenuOn = false;
+		data.goalEditMenuOn = false;
 		return data;
 	});
 	toggleScroll();
@@ -213,4 +215,13 @@ export const confirmNoteEdit = function () {
 		return data;
 	});
 	clearInput();
+};
+export const showGoalEditMenu = function (goal) {
+	datastore.update((data) => {
+		data.overlayOn = true;
+		data.activeObject = goal;
+		data.goalEditMenuOn = true;
+		return data;
+	});
+	toggleScroll();
 };
