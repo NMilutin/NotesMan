@@ -36,7 +36,11 @@ export class Goal extends Note {
 		this.#done = value;
 	}
 	constructor(name, text, date, color, ...tasks) {
-		super(name, text, date, color);
-		this.tasks = [...tasks];
+		try {
+			super(name, text, date, color);
+			this.tasks = tasks;
+		} catch (e) {
+			throw e;
+		}
 	}
 }
