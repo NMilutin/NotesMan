@@ -15,7 +15,12 @@
 
 <div class="goals__container">
 	{#each data.goals as goal, i}
-		<div class="goal" data-i={i}>
+		<div
+			class="goal"
+			style={`--background-color:${goal.backgroundColor};
+        --text-color:${goal.textColor};`}
+			data-i={i}
+		>
 			<h2>{goal.name}</h2>
 			<h3>
 				{isSameDay(goal.date, new Date())
@@ -39,8 +44,11 @@
 					</div>
 				{/each}
 			</div>
-			<button class="goal-edit" on:click={function () {state.showGoalEditMenu(goal)}}
-				><Icon name="note-edit" width="1.5em"></Icon></button
+			<button
+				class="goal-edit"
+				on:click={function () {
+					state.showGoalEditMenu(goal);
+				}}><Icon name="note-edit" width="1.5em"></Icon></button
 			>
 		</div>
 	{/each}
@@ -63,6 +71,10 @@
 			flex-direction: column;
 			gap: 1em;
 			position: relative;
+			background-color: var(--background-color);
+			* {
+				color: var(--text-color);
+			}
 			h2 {
 				font-size: 3em;
 			}

@@ -10,7 +10,8 @@
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<div
 				class="note"
-				style={`--note-color:${note.color.hex || '#DFDFCF'};`}
+				style={`--background-color:${note.backgroundColor};
+        --text-color:${note.textColor};`}
 				on:click={function (e) {
 					state.showNote(note);
 				}}
@@ -36,11 +37,14 @@
 				border-radius: 1rem;
 				border-bottom-left-radius: 0.5rem;
 				border-bottom-right-radius: 0.5rem;
-				background-color: var(--note-color);
+				background-color: var(--background-color);
 				padding: 1rem;
 				height: 20em;
 				overflow: hidden;
 				cursor: pointer;
+				* {
+					color: var(--text-color);
+				}
 				h2 {
 					background-color: rgba(0, 0, 0, 0.1);
 					margin: -1rem -1rem 0;

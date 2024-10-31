@@ -33,7 +33,7 @@
 		{/each}
 	</div>
 	<button
-		class={`note-add ${data.types.find((type) => type.name === 'All').active ? 'effect__disabled' : ''}`}
+		class={`note-add ${data.types.find((type) => type.name === 'All')?.active ? 'effect__disabled' : ''}`}
 		on:click={state.showCreateMenu}
 		><Icon name="note-add" class="note-add__icon" height="100%" width="3em"></Icon></button
 	>
@@ -64,9 +64,7 @@
 	</div>
 {/if}
 
-<!-- TODO: meni za goal,
- picker za boju, vise boja (pozadina, pozadina 2, tekst), odabir fonta
- baza podataka, login i signup, backup podataka-->
+<!-- TODO: baza podataka, login i signup, backup podataka-->
 <style lang="scss">
 	header {
 		display: flex;
@@ -103,7 +101,7 @@
 	}
 
 	.overlay {
-		position: absolute;
+		position: fixed;
 		width: 100vw;
 		height: 100vh;
 		top: 0;

@@ -1,10 +1,14 @@
 <script>
-  export let data;
-  export let state;
+	export let data;
+	export let state;
 
-  import Icon from "$lib/component/Icon.svelte";
+	import Icon from '$lib/component/Icon.svelte';
 </script>
-<div class="note-menu" style={`--note-color:${data.activeObject.color.hex || '#DFDFCF'};`}>
+
+<div
+	class="note-menu"
+	style={`--background-color:${data.activeObject.backgroundColor}; --text-color:${data.activeObject.textColor}`}
+>
 	{#if !data.editModeOn}
 		<h2>{data.activeObject.name}</h2>
 		<h3>{data.activeObject.date.toDateString()}</h3>
@@ -37,6 +41,14 @@
 		<button class="note-accept" on:click={state.confirmNoteEdit}
 			><Icon name="checkmark" width="1.5em"></Icon></button
 		>
+		<label>
+			Background color
+			<input type="color" bind:value={data.input.backgroundColor} />
+		</label>
+		<label>
+			Text color
+			<input type="color" bind:value={data.input.textColor} />
+		</label>
 	{/if}
 </div>
 
@@ -47,7 +59,7 @@
 		border-radius: 1rem;
 		border-bottom-left-radius: 0.5rem;
 		border-bottom-right-radius: 0.5rem;
-		background-color: var(--note-color);
+		background-color: var(--background-color);
 		padding: 1rem;
 		height: 60vh;
 		width: 30vw;
@@ -55,6 +67,9 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
+		* {
+			color: var(--text-color);
+		}
 		h2 {
 			background-color: rgba(0, 0, 0, 0.1);
 			margin: -1rem -1rem 0;
@@ -110,6 +125,9 @@
 		}
 		.note-accept {
 			left: 0.75em;
+		}
+		input[type='color'] {
+			background-color: var(--background-color);
 		}
 	}
 </style>

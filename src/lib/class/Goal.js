@@ -35,9 +35,9 @@ export class Goal extends Note {
 		if (typeof value !== 'boolean') throw new Error('Value is not a boolean');
 		this.#done = value;
 	}
-	constructor(name, text, date, color, ...tasks) {
+	constructor(name, text, date, backgroundColor,textColor , ...tasks) {
 		try {
-			super(name, text, date, color);
+			super(name, text, date, backgroundColor,textColor);
 			this.tasks = tasks;
 		} catch (e) {
 			throw e;

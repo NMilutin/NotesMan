@@ -6,26 +6,20 @@ import { Goal } from '$lib/class/Goal.js';
 import { browser } from '$app/environment';
 export const datastore = writable({
 	notes: [],
-	tasks: [
-		new Task('1', '2', new Date(), new Color('#c4f')),
-		new Task('2', '2', new Date(), new Color('#c4f')),
-		new Task('3', '2', new Date(), new Color('#c4f')),
-		new Task('4', '2', new Date(), new Color('#c4f')),
-		new Task('5', '2', new Date(), new Color('#c4f')),
-		new Task('6', '2', new Date(), new Color('#c4f'))
-	],
+	tasks: [],
 	goals: [],
 	input: {
 		name: '',
 		date: new Date().toISOString().slice(0, 10),
 		text: '',
-		tasks: []
+		tasks: [],
+		backgroundColor: '#DFDFCF',
+		textColor: '#000000'
 	},
 	taskDate: new Date().toISOString().slice(0, 10),
 	activeObject: {},
 	types: [
-		{ name: 'All', active: true },
-		{ name: 'Notes', active: false },
+		{ name: 'Notes', active: true },
 		{ name: 'Tasks', active: false },
 		{ name: 'Goals', active: false }
 	],
@@ -55,7 +49,15 @@ export const clearInput = function () {
 export const addNote = function () {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	datastore.update((data) => {
-		data.notes.push(new Note(data.input.name, data.input.text, new Date(data.input.date)));
+		data.notes.push(
+			new Note(
+				data.input.name,
+				data.input.text,
+				new Date(data.input.date),
+				data.input.backgroundColor,
+				data.input.textColor
+			)
+		);
 		return data;
 	});
 	clearInput();
@@ -71,13 +73,22 @@ export const delNote = function (note) {
 	});
 
 	clearInput();
+	hideOverlay();
 	return true;
 };
 
 export const addTask = function () {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	datastore.update((data) => {
-		data.tasks.push(new Task(data.input.name, data.input.text, new Date(data.input.date)));
+		data.tasks.push(
+			new Task(
+				data.input.name,
+				data.input.text,
+				new Date(data.input.date),
+				data.input.backgroundColor,
+				data.input.textColor
+			)
+		);
 		return data;
 	});
 
@@ -106,7 +117,12 @@ export const changeTaskDay = function (input) {
 		return data;
 	});
 };
-
+export const onTaskDayChange = function () {
+	datastore.update((data) => {
+		data.input.date = data.taskDate;
+		return data;
+	});
+};
 export const addGoal = function () {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	datastore.update((data) => {
@@ -115,7 +131,8 @@ export const addGoal = function () {
 				data.input.name,
 				data.input.text,
 				new Date(data.input.date),
-				new Color('#DFDFCF'),
+				data.input.backgroundColor,
+				data.input.textColor,
 				...data.input.tasks
 			)
 		);
@@ -123,6 +140,19 @@ export const addGoal = function () {
 	});
 
 	clearInput();
+	return true;
+};
+export const delGoal = function (goal) {
+	datastore.update((data) => {
+		const i = data.goals.findIndex((g) => {
+			return g === goal;
+		});
+		data.goals.splice(i, 1);
+		return data;
+	});
+
+	clearInput();
+	hideOverlay();
 	return true;
 };
 export const addInputGoalTask = function (task) {
@@ -189,7 +219,7 @@ export const showNote = function (note) {
 };
 export const toggleTaskDatePicker = function (e) {
 	datastore.update((data) => {
-		if (e.target !== this) return;
+		if (e.target !== this) return data;
 		data.taskDatePickerOn = !data.taskDatePickerOn;
 		return data;
 	});
@@ -200,6 +230,8 @@ export const toggleNoteEdit = function () {
 		data.input.name = data.activeObject.name;
 		data.input.text = data.activeObject.text;
 		data.input.date = `${data.activeObject.date.getFullYear()}-${(data.activeObject.date.getMonth() + 1).toString().padStart(2, '0')}-${data.activeObject.date.getDate().toString().padStart(2, '0')}`;
+		data.input.backgroundColor = data.activeObject.backgroundColor;
+		data.input.textColor = data.activeObject.textColor;
 		return data;
 	});
 };
@@ -209,6 +241,8 @@ export const confirmNoteEdit = function () {
 		note.name = data.input.name;
 		note.text = data.input.text;
 		note.date = new Date(data.input.date);
+		note.backgroundColor = data.input.backgroundColor;
+		note.textColor = data.input.textColor;
 		data.editModeOn = false;
 		data.noteMenuOn = false;
 		data.overlayOn = false;
@@ -221,7 +255,29 @@ export const showGoalEditMenu = function (goal) {
 		data.overlayOn = true;
 		data.activeObject = goal;
 		data.goalEditMenuOn = true;
+		data.input.name = goal.name;
+		data.input.text = goal.text;
+		data.input.date = goal.date.toISOString().slice(0, 10);
+		data.input.tasks = [...goal.tasks];
+		data.input.backgroundColor = goal.backgroundColor;
+		data.input.textColor = goal.textColor;
 		return data;
 	});
 	toggleScroll();
+};
+export const confirmGoalEdit = function () {
+	datastore.update((data) => {
+		const goal = data.goals.find((g) => g === data.activeObject);
+		goal.name = data.input.name;
+		goal.text = data.input.text;
+		goal.date = new Date(data.input.date);
+		goal.tasks = [...data.input.tasks];
+		goal.backgroundColor = data.input.backgroundColor;
+		goal.textColor = data.input.textColor;
+		data.goalEditMenuOn = false;
+		data.overlayOn = false;
+		return data;
+	});
+	clearInput();
+	hideOverlay();
 };

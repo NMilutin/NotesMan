@@ -11,16 +11,19 @@
 	{#if data.taskDatePickerOn}<input
 			type="date"
 			bind:value={data.taskDate}
-			on:change={function () {
-				data.input.date = data.taskDate;
-			}}
+			on:change={state.onTaskDayChange}
 		/>{/if}
 	{#if !data.taskDatePickerOn}{new Date(data.taskDate).toDateString()}{/if}
 </h1>
 <div class="tasks__container">
 	{#each data.tasks as task, i}
 		{#if new Date(data.taskDate).getDate() === task.date.getDate() && new Date(data.taskDate).getMonth() === task.date.getMonth() && new Date(data.taskDate).getFullYear() === task.date.getFullYear()}
-			<div class="task" style={`--task-color:${task.color.hex || '#DFDFCF'};`} data-i={i}>
+			<div
+				class="task"
+				style={`--background-color:${task.backgroundColor};
+        --text-color:${task.textColor};`}
+				data-i={i}
+			>
 				<div class="task-title">
 					<button
 						class="task-do"
@@ -42,13 +45,21 @@
 <button
 	class="task-prev"
 	on:click={function () {
-		state.changeTaskDay(new Date(data.taskDate).setDate(new Date(data.taskDate).getDate() - 1));
+		state.changeTaskDay(
+			new Date(new Date(data.taskDate).setDate(new Date(data.taskDate).getDate() - 1))
+				.toISOString()
+				.slice(0, 10)
+		);
 	}}><Icon name="btn-prev" width="1.5em"></Icon></button
 >
 <button
 	class="task-next"
 	on:click={function () {
-		state.changeTaskDay(new Date(data.taskDate).setDate(new Date(data.taskDate).getDate() + 1));
+		state.changeTaskDay(
+			new Date(new Date(data.taskDate).setDate(new Date(data.taskDate).getDate() + 1))
+				.toISOString()
+				.slice(0, 10)
+		);
 	}}><Icon name="btn-next" width="1.5em"></Icon></button
 >
 
@@ -63,7 +74,10 @@
 			width: 50%;
 			text-align: center;
 			border-radius: 1em;
-			background-color: var(--task-color);
+			background-color: var(--background-color);
+			* {
+				color: var(--text-color);
+			}
 			.task-title {
 				display: flex;
 				position: relative;
