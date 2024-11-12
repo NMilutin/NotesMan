@@ -1,4 +1,4 @@
-import { Color } from './Color.js';
+import { Color } from './Color.svelte.js';
 export class Note {
 	#id;
 	get id() {
@@ -16,7 +16,7 @@ export class Note {
 			throw e;
 		}
 	}
-	#name;
+	#name = $state();
 	get name() {
 		return this.#name;
 	}
@@ -26,7 +26,7 @@ export class Note {
 		this.#name = value;
 	}
 
-	#text;
+	#text = $state();
 	get text() {
 		return this.#text;
 	}
@@ -35,7 +35,7 @@ export class Note {
 		this.#text = value;
 	}
 
-	#date;
+	#date = $state();
 	get date() {
 		return this.#date;
 	}
@@ -44,10 +44,10 @@ export class Note {
 		if (!isFinite(value.getDate())) throw new Error('Invalid date object');
 		this.#date = new Date(value);
 	}
-	#color = {
+	#color = $state({
 		background: new Color('#DFDFCF'),
 		text: new Color('#000')
-	};
+	});
 	get backgroundColor() {
 		return this.#color.background.hex;
 	}

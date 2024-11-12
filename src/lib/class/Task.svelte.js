@@ -1,13 +1,12 @@
-import { te } from 'date-fns/locale';
-import { Color } from './Color.js';
-import { Note } from './Note.js';
+import { error } from '@sveltejs/kit';
+import { Note } from './Note.svelte.js';
 export class Task extends Note {
-	#done = false;
+	#done = $state(false);
 	get done() {
 		return this.#done;
 	}
 	set done(value) {
-		if (typeof value !== 'boolean') throw new Error('Value is not a boolean');
+		if (typeof value !== 'boolean') throw new error('Value is not a boolean');
 		this.#done = value;
 	}
 	constructor(id, name, text, date, backgroundColor, textColor, done = false) {
@@ -22,7 +21,7 @@ export class Task extends Note {
 			date: this.date.toISOString(),
 			backgroundColor: this.backgroundColor,
 			textColor: this.textColor,
-      done: this.#done
+			done: this.#done
 		});
 	}
 }

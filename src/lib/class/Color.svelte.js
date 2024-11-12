@@ -1,7 +1,7 @@
 export class Color {
-	#r;
-	#g;
-	#b;
+	#r = $state();
+	#g = $state();
+	#b = $state();
 	#allowedChars = [
 		'0',
 		'1',

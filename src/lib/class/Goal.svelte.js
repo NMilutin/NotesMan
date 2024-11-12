@@ -1,8 +1,8 @@
-import { Color } from './Color.js';
-import { Note } from './Note.js';
-import { Task } from './Task.js';
+import { Color } from './Color.svelte.js';
+import { Note } from './Note.svelte.js';
+import { Task } from './Task.svelte.js';
 export class Goal extends Note {
-	#tasks = [];
+	#tasks = $state([]);
 	addTask(task) {
 		if (!(task instanceof Task)) throw new Error('Value is not a Task object');
 		this.#tasks.push(task);
@@ -27,7 +27,7 @@ export class Goal extends Note {
 		});
 		this.#tasks = [...value];
 	}
-	#done = false;
+	#done = $state(false);
 	get achieved() {
 		return this.#done;
 	}

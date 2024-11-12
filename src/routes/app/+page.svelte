@@ -1,8 +1,8 @@
 <script>
 	import Icon from '$lib/component/Icon.svelte';
-	import { Note } from '$lib/class/Note.js';
-	import { Task } from '$lib/class/Task.js';
-	import { Goal } from '$lib/class/Goal.js';
+	import { Note } from '$lib/class/Note.svelte.js';
+	import { Task } from '$lib/class/Task.svelte.js';
+	import { Goal } from '$lib/class/Goal.svelte.js';
 	import NotesView from '$lib/component/NotesView.svelte';
 	import TasksView from '$lib/component/TasksView.svelte';
 	import GoalsView from '$lib/component/GoalsView.svelte';
@@ -12,7 +12,7 @@
 	import '$lib/style.scss';
 	import * as stateJs from '$lib/state.svelte.js';
 	const { data: loadData } = $props();
-	let data = $state(stateJs.getData());
+	let data = $state(stateJs.data);
 	loadData.notes = loadData.notes.map((note) => JSON.parse(note));
 	loadData.tasks = loadData.tasks.map((tasks) => JSON.parse(tasks));
 	loadData.goals = loadData.goals.map((goal) => JSON.parse(goal));
@@ -30,10 +30,8 @@
 			return new Goal(id, name, text, date, backgroundColor, textColor, ...tasks);
 		}
 	);
-	$effect(() => stateJs.datastore.set(data));
 </script>
 
-<!-- UI-BUG: Iz nekog razloga se prikaz ne menja posle promene state-a dok ne promenim kategoriju tj. ponovo ne renderujem -->
 <header>
 	<div class="note__types">
 		{#each data.types as type}

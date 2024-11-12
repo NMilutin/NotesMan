@@ -1,6 +1,6 @@
-import { Note } from '$lib/class/Note.js';
-import { Task } from '$lib/class/Task.js';
-import { Goal } from '$lib/class/Goal.js';
+import { Note } from '$lib/class/Note.svelte.js';
+import { Task } from '$lib/class/Task.svelte.js';
+import { Goal } from '$lib/class/Goal.svelte.js';
 
 import { formatISO9075 } from 'date-fns';
 import sql from './postgresClient';
