@@ -1,6 +1,5 @@
 <script>
-	export let data;
-	export let state;
+	let { data = $bindable(), state } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
 
@@ -36,7 +35,7 @@
 						<h4>{task.name}</h4>
 						<p>{task.text}</p>
 						<button
-							on:click={function () {
+							onclick={function () {
 								state.doTask(data.tasks.findIndex((t) => t === task));
 							}}
 							>{#if task.done}<Icon name="checkmark" width="1.5em"></Icon>{/if}</button
@@ -46,7 +45,7 @@
 			</div>
 			<button
 				class="goal-edit"
-				on:click={function () {
+				onclick={function () {
 					state.showGoalEditMenu(goal);
 				}}><Icon name="note-edit" width="1.5em"></Icon></button
 			>

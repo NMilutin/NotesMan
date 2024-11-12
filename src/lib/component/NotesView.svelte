@@ -1,6 +1,5 @@
 <script>
-	export let data;
-	export let state;
+	let { data = $bindable(), state } = $props();
 </script>
 
 <div class="notes__container">
@@ -12,7 +11,7 @@
 				class="note"
 				style={`--background-color:${note.backgroundColor};
         --text-color:${note.textColor};`}
-				on:click={function (e) {
+				onclick={function (e) {
 					state.showNote(note);
 				}}
 			>

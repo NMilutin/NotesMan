@@ -35,12 +35,23 @@ export class Goal extends Note {
 		if (typeof value !== 'boolean') throw new Error('Value is not a boolean');
 		this.#done = value;
 	}
-	constructor(name, text, date, backgroundColor,textColor , ...tasks) {
+	constructor(id, name, text, date, backgroundColor, textColor, ...tasks) {
 		try {
-			super(name, text, date, backgroundColor,textColor);
+			super(id, name, text, date, backgroundColor, textColor);
 			this.tasks = tasks;
 		} catch (e) {
 			throw e;
 		}
+	}
+	toJSON() {
+		return JSON.stringify({
+			id: this.id,
+			name: this.name,
+			text: this.text,
+			date: this.date.toISOString(),
+			backgroundColor: this.backgroundColor,
+			textColor: this.textColor,
+			tasks: this.tasks.map((task) => task.toJSON())
+		});
 	}
 }

@@ -1,7 +1,8 @@
 <script>
-	import { browser } from '$app/environment';
-
 	import Icon from '$lib/component/Icon.svelte';
+	import { Note } from '$lib/class/Note.js';
+	import { Task } from '$lib/class/Task.js';
+	import { Goal } from '$lib/class/Goal.js';
 	import NotesView from '$lib/component/NotesView.svelte';
 	import TasksView from '$lib/component/TasksView.svelte';
 	import GoalsView from '$lib/component/GoalsView.svelte';
@@ -9,14 +10,30 @@
 	import NoteMenu from '$lib/component/NoteMenu.svelte';
 	import GoalEditMenu from '$lib/component/GoalEditMenu.svelte';
 	import '$lib/style.scss';
-	import * as state from '$lib/state.js';
-
-	let data;
-	state.datastore.subscribe((value) => {
-		data = value;
+	import * as stateJs from '$lib/state.svelte.js';
+	const { data: loadData } = $props();
+	let data = $state(stateJs.getData());
+	loadData.notes = loadData.notes.map((note) => JSON.parse(note));
+	loadData.tasks = loadData.tasks.map((tasks) => JSON.parse(tasks));
+	loadData.goals = loadData.goals.map((goal) => JSON.parse(goal));
+	data.notes = loadData.notes.map(({ id, name, text, date, backgroundColor, textColor }) => {
+		return new Note(id, name, text, date, backgroundColor, textColor);
 	});
+	data.tasks = loadData.tasks.map(({ id, name, text, date, backgroundColor, textColor, done }) => {
+		return new Task(id, name, text, date, backgroundColor, textColor, done);
+	});
+	data.goals = loadData.goals.map(
+		({ id, name, text, date, backgroundColor, textColor, tasks: tasksJSON }) => {
+			const tasks = tasksJSON
+				.map((task) => JSON.parse(task))
+				.map(({ id: taskId }) => data.tasks.find((task) => task.id === taskId));
+			return new Goal(id, name, text, date, backgroundColor, textColor, ...tasks);
+		}
+	);
+	$effect(() => stateJs.datastore.set(data));
 </script>
 
+<!-- UI-BUG: Iz nekog razloga se prikaz ne menja posle promene state-a dok ne promenim kategoriju tj. ponovo ne renderujem -->
 <header>
 	<div class="note__types">
 		{#each data.types as type}
@@ -24,8 +41,8 @@
 				data-type={type.name}
 				class="note-type"
 				class:note-type__active={type.active}
-				on:click={function (e) {
-					state.changeType(e);
+				onclick={function (e) {
+					stateJs.changeType(e);
 				}}
 			>
 				{type.name}
@@ -34,33 +51,34 @@
 	</div>
 	<button
 		class={`note-add ${data.types.find((type) => type.name === 'All')?.active ? 'effect__disabled' : ''}`}
-		on:click={state.showCreateMenu}
+		onclick={stateJs.showCreateMenu}
 		><Icon name="note-add" class="note-add__icon" height="100%" width="3em"></Icon></button
 	>
 </header>
 <main>
-	{#if data.types.find((type) => type.name === 'Notes').active}<NotesView {data} {state}
+	{#if data.types.find((type) => type.name === 'Notes').active}<NotesView {data} state={stateJs}
 		></NotesView>{/if}
-	{#if data.types.find((type) => type.name === 'Tasks').active}<TasksView {data} {state}
+	{#if data.types.find((type) => type.name === 'Tasks').active}<TasksView {data} state={stateJs}
 		></TasksView>{/if}
-	{#if data.types.find((type) => type.name === 'Goals').active}<GoalsView {data} {state}
+	{#if data.types.find((type) => type.name === 'Goals').active}<GoalsView {data} state={stateJs}
 		></GoalsView>{/if}
 </main>
 {#if data.overlayOn}
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore event_directive_deprecated -->
 	<div
 		class="overlay"
-		on:click={function (e) {
+		onclick={function (e) {
 			if (e.target.classList.contains('overlay')) {
-				state.hideOverlay();
-				state.clearInput();
+				stateJs.hideOverlay();
+				stateJs.clearInput();
 			}
 		}}
 	>
-		<CreateMenu {data} {state}></CreateMenu>
-		{#if data.noteMenuOn}<NoteMenu {data} {state}></NoteMenu>{/if}
-		{#if data.goalEditMenuOn}<GoalEditMenu {data} {state}></GoalEditMenu>{/if}
+		<CreateMenu {data} state={stateJs}></CreateMenu>
+		{#if data.noteMenuOn}<NoteMenu {data} state={stateJs}></NoteMenu>{/if}
+		{#if data.goalEditMenuOn}<GoalEditMenu {data} state={stateJs}></GoalEditMenu>{/if}
 	</div>
 {/if}
 

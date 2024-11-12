@@ -1,17 +1,16 @@
 <script>
-	export let state;
-	export let data;
+	let { data = $bindable(), state } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<h1 on:click={state.toggleTaskDatePicker}>
+<h1 onclick={state.toggleTaskDatePicker}>
 	{#if data.taskDatePickerOn}<input
 			type="date"
 			bind:value={data.taskDate}
-			on:change={state.onTaskDayChange}
+			onchange={state.onTaskDayChange}
 		/>{/if}
 	{#if !data.taskDatePickerOn}{new Date(data.taskDate).toDateString()}{/if}
 </h1>
@@ -27,13 +26,13 @@
 				<div class="task-title">
 					<button
 						class="task-do"
-						on:click={function () {
+						onclick={function () {
 							state.doTask(i);
 						}}
 						>{#if task.done}<Icon name="checkmark" width="1.5em"></Icon>{/if}</button
 					>
 					<h2>{task.name}</h2>
-					<button class="task-del" on:click={state.delTask.bind(this, i)}
+					<button class="task-del" onclick={state.delTask.bind(this, i)}
 						><Icon name="note-del" width="1.5em"></Icon></button
 					>
 				</div>
@@ -44,7 +43,7 @@
 </div>
 <button
 	class="task-prev"
-	on:click={function () {
+	onclick={function () {
 		state.changeTaskDay(
 			new Date(new Date(data.taskDate).setDate(new Date(data.taskDate).getDate() - 1))
 				.toISOString()
@@ -54,7 +53,7 @@
 >
 <button
 	class="task-next"
-	on:click={function () {
+	onclick={function () {
 		state.changeTaskDay(
 			new Date(new Date(data.taskDate).setDate(new Date(data.taskDate).getDate() + 1))
 				.toISOString()

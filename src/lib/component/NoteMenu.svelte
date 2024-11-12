@@ -1,7 +1,6 @@
 <script>
-	export let data;
-	export let state;
-
+	let { data = $bindable(), state } = $props();
+  
 	import Icon from '$lib/component/Icon.svelte';
 </script>
 
@@ -13,12 +12,12 @@
 		<h2>{data.activeObject.name}</h2>
 		<h3>{data.activeObject.date.toDateString()}</h3>
 		<p>{data.activeObject.text}</p>
-		<button class="note-edit" on:click={state.toggleNoteEdit}
+		<button class="note-edit" onclick={state.toggleNoteEdit}
 			><Icon name="note-edit" width="1.5em"></Icon></button
 		>
 		<button
 			class="note-del"
-			on:click={function () {
+			onclick={function () {
 				state.delNote(data.activeObject);
 				state.hideOverlay();
 			}}><Icon name="note-del" width="1.5em"></Icon></button
@@ -28,17 +27,17 @@
 		<h2><input bind:value={data.input.name} /></h2>
 		<h3><input type="date" bind:value={data.input.date} /></h3>
 		<p><textarea resize="false" bind:value={data.input.text}></textarea></p>
-		<button class="note-edit" on:click={state.toggleNoteEdit}
+		<button class="note-edit" onclick={state.toggleNoteEdit}
 			><Icon name="xmark" width="1.5em"></Icon></button
 		>
 		<button
 			class="note-del"
-			on:click={function () {
+			onclick={function () {
 				state.delNote(data.activeObject);
 				state.hideOverlay();
 			}}><Icon name="note-del" width="1.5em"></Icon></button
 		>
-		<button class="note-accept" on:click={state.confirmNoteEdit}
+		<button class="note-accept" onclick={state.confirmNoteEdit}
 			><Icon name="checkmark" width="1.5em"></Icon></button
 		>
 		<label>

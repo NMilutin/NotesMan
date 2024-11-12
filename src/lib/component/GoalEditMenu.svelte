@@ -1,6 +1,5 @@
 <script>
-	export let data;
-	export let state;
+	let { data = $bindable(), state } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
 </script>
@@ -17,7 +16,7 @@
 			{#each data.tasks.filter((task) => !data.input.tasks.includes(task)) as task}
 				<div class="goal-create__task">
 					<span>{task.name}</span><button
-						on:click={function () {
+						onclick={function () {
 							state.addInputGoalTask(task);
 						}}><Icon name="btn-move" width="1.5em"></Icon></button
 					>
@@ -27,7 +26,7 @@
 		<div class="tasks__selected">
 			{#each data.input.tasks as task, i}<div class="goal-create__task">
 					<span>{task.name}</span><button
-						on:click={function () {
+						onclick={function () {
 							state.removeInputGoalTask(i);
 						}}><Icon name="btn-move" width="1.5em"></Icon></button
 					>
@@ -36,11 +35,11 @@
 	</div>
 	<button
 		class="goal-del"
-		on:click={function () {
+		onclick={function () {
 			state.delGoal(data.activeObject);
 		}}><Icon name="note-del" width="1.5em"></Icon></button
 	>
-	<button class="goal-accept" on:click={state.confirmGoalEdit}
+	<button class="goal-accept" onclick={state.confirmGoalEdit}
 		><Icon name="checkmark" width="1.5em"></Icon></button
 	>
 	<label>

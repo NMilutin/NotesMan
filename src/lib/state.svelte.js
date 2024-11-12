@@ -1,5 +1,4 @@
 import { writable } from 'svelte/store';
-import { Color } from '$lib/class/Color.js';
 import { Note } from '$lib/class/Note.js';
 import { Task } from '$lib/class/Task.js';
 import { Goal } from '$lib/class/Goal.js';
@@ -32,7 +31,8 @@ export const datastore = writable({
 	taskDatePickerOn: false,
 	goalEditMenuOn: false
 });
-let data;
+let data = $state();
+export let getData = () => data;
 datastore.subscribe((value) => {
 	data = value;
 });
@@ -96,6 +96,7 @@ export const addTask = function () {
 	return true;
 };
 export const delTask = function (i) {
+	debugger;
 	datastore.update((data) => {
 		data.tasks.splice(i, 1);
 		data.activeObject = data.tasks.at(i);
@@ -106,6 +107,7 @@ export const delTask = function (i) {
 	});
 };
 export const doTask = function (i) {
+	debugger;
 	datastore.update((data) => {
 		data.tasks.at(i).done = !data.tasks.at(i).done;
 		return data;

@@ -1,7 +1,5 @@
 <script>
-	export let data;
-	export let state;
-
+	let { data = $bindable(), state } = $props();
 	import Icon from '$lib/component/Icon.svelte';
 </script>
 
@@ -35,7 +33,7 @@
 					{#each data.tasks.filter((task) => !data.input.tasks.includes(task)) as task}
 						<div class="goal-create__task">
 							<span>{task.name}</span><button
-								on:click={function () {
+								onclick={function () {
 									state.addInputGoalTask(task);
 								}}><Icon name="btn-move" width="1.5em"></Icon></button
 							>
@@ -45,7 +43,7 @@
 				<div class="tasks__selected">
 					{#each data.input.tasks as task, i}<div class="goal-create__task">
 							<span>{task.name}</span><button
-								on:click={function () {
+								onclick={function () {
 									state.removeInputGoalTask(i);
 								}}><Icon name="btn-move" width="1.5em"></Icon></button
 							>
@@ -64,7 +62,7 @@
 		{#if data.noteCreateMenuOn}
 			<button
 				class="btn__create-note"
-				on:click={function () {
+				onclick={function () {
 					state.addNote() && state.hideOverlay();
 				}}>Create Note</button
 			>
@@ -72,7 +70,7 @@
 		{#if data.taskCreateMenuOn}
 			<button
 				class="btn__create-note"
-				on:click={function () {
+				onclick={function () {
 					state.addTask() && state.hideOverlay();
 				}}>Create Task</button
 			>
@@ -80,7 +78,7 @@
 		{#if data.goalCreateMenuOn}
 			<button
 				class="btn__create-note"
-				on:click={function () {
+				onclick={function () {
 					state.addGoal() && state.hideOverlay();
 				}}>Create Goal</button
 			>

@@ -1,8 +1,12 @@
 import { Color } from './Color.js';
 export class Note {
-	#name;
-	constructor(name, text, date, backgroundColor, textColor) {
+	#id;
+	get id() {
+		return this.#id;
+	}
+	constructor(id, name, text, date, backgroundColor, textColor) {
 		try {
+			this.#id = id;
 			this.name = name;
 			this.text = text;
 			this.date = new Date(date);
@@ -12,6 +16,7 @@ export class Note {
 			throw e;
 		}
 	}
+	#name;
 	get name() {
 		return this.#name;
 	}
@@ -62,5 +67,15 @@ export class Note {
 		} catch (e) {
 			throw e;
 		}
+	}
+	toJSON() {
+		return JSON.stringify({
+			id: this.#id,
+			name: this.#name,
+			text: this.#text,
+			date: this.#date.toISOString(),
+			backgroundColor: this.backgroundColor,
+			textColor: this.textColor
+		});
 	}
 }
