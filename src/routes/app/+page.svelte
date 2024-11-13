@@ -6,7 +6,9 @@
 	import NotesView from '$lib/component/NotesView.svelte';
 	import TasksView from '$lib/component/TasksView.svelte';
 	import GoalsView from '$lib/component/GoalsView.svelte';
-	import CreateMenu from '$lib/component/CreateMenu.svelte';
+	import NoteCreateMenu from '$lib/component/NoteCreateMenu.svelte';
+	import TaskCreateMenu from '$lib/component/TaskCreateMenu.svelte';
+	import GoalCreateMenu from '$lib/component/GoalCreateMenu.svelte';
 	import NoteMenu from '$lib/component/NoteMenu.svelte';
 	import GoalEditMenu from '$lib/component/GoalEditMenu.svelte';
 	import '$lib/style.scss';
@@ -74,7 +76,9 @@
 			}
 		}}
 	>
-		<CreateMenu {data} state={stateJs}></CreateMenu>
+		{#if data.noteCreateMenuOn}<NoteCreateMenu {data} state={stateJs}></NoteCreateMenu>{/if}
+		{#if data.taskCreateMenuOn}<TaskCreateMenu {data} state={stateJs}></TaskCreateMenu>{/if}
+		{#if data.goalCreateMenuOn}<GoalCreateMenu {data} state={stateJs}></GoalCreateMenu>{/if}
 		{#if data.noteMenuOn}<NoteMenu {data} state={stateJs}></NoteMenu>{/if}
 		{#if data.goalEditMenuOn}<GoalEditMenu {data} state={stateJs}></GoalEditMenu>{/if}
 	</div>

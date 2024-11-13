@@ -63,42 +63,51 @@ export const isSessionValid = async function (sessionId, key) {
     from sessions where id=${sessionId};
   `
 	)[0].val;
-	if (!isKeyCorrect) return;
+	if (!isKeyCorrect) return isKeyCorrect;
 	const now = new Date();
-	const expireSql = sql`select expires from sessions where id=${sessionId} limit 1`[0].expires;
+	const expireSql = (await sql`select expires from sessions where id=${sessionId} limit 1`)[0]
+		.expires;
 	const expire = new Date(expireSql);
-	const expired = expire - now > 0;
+	const expired = expire - now < 0;
 	if (!expired) refreshSession(sessionId, key);
 	else await sql`delete from sessions where id=${sessionId}`;
-	return expired;
+	return !expired;
 };
 
 export const insert = {
 	async note(sessionId, name, text, date, bgColor, textColor) {
-		const userId = await sql`select user_id from sessions where id=${sessionId} limit 1`[0].user_id;
-		return await sql`
+		const userId = (await sql`select user_id from sessions where id=${sessionId} limit 1`)[0]
+			.user_id;
+		return (
+			await sql`
       insert into notes (name,text,date,background_color,text_color,user_id) values
       (${name},${text},${date},${bgColor},${textColor},${userId}) returning id;
-    `[0].id;
+    `
+		)[0].id;
 	},
 	async task(sessionId, name, text, date, bgColor, textColor) {
-		const userId = await sql`select user_id from sessions where id=${sessionId} limit 1`[0].user_id;
-		return await sql`
+		const userId = (await sql`select user_id from sessions where id=${sessionId} limit 1`)[0]
+			.user_id;
+		return (
+			await sql`
       insert into tasks (name,text,date,background_color,text_color,user_id) values
       (${name},${text},${date},${bgColor},${textColor},${userId}) returning id;
-    `[0].id;
+    `
+		)[0].id;
 	},
 	async goal(sessionId, name, text, date, bgColor, textColor, ...taskIds) {
-		const userId = await sql`select user_id from sessions where id=${sessionId} limit 1`[0].user_id;
-		const goalId = await sql`
+		const userId = (await sql`select user_id from sessions where id=${sessionId} limit 1`)[0]
+			.user_id;
+		const goalId = (
+			await sql`
       insert into goals (name,text,date,background_color,text_color,user_id) values
       (${name},${text},${date},${bgColor},${textColor},${userId})
       returning id;
-    `[0].id;
-		await sql`
-      insert into task_goal (task_id,goal_id) values
-      ${taskIds.map((taskId) => `(${taskId},${goalId})`).join(',')}
-    `;
+    `
+		)[0].id;
+		taskIds.forEach((taskId) => {
+			sql`insert into task_goal (task_id,goal_id) values (${taskId},${goalId})`.execute();
+		});
 		return goalId;
 	}
 };

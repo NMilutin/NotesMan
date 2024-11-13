@@ -37,10 +37,11 @@ export const clearInput = function () {
 	data.input.tasks = [];
 };
 
-export const addNote = function () {
+export const addNote = function (noteId) {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	data.notes.push(
 		new Note(
+			noteId,
 			data.input.name,
 			data.input.text,
 			new Date(data.input.date),
@@ -62,10 +63,11 @@ export const delNote = function (note) {
 	return true;
 };
 
-export const addTask = function () {
+export const addTask = function (taskId) {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	data.tasks.push(
 		new Task(
+			taskId,
 			data.input.name,
 			data.input.text,
 			new Date(data.input.date),
@@ -93,10 +95,11 @@ export const changeTaskDay = function (input) {
 export const onTaskDayChange = function () {
 	data.input.date = data.taskDate;
 };
-export const addGoal = function () {
+export const addGoal = function (goalId) {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	data.goals.push(
 		new Goal(
+      goalId,
 			data.input.name,
 			data.input.text,
 			new Date(data.input.date),

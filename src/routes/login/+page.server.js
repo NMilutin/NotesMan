@@ -13,7 +13,7 @@ export const actions = {
 		if (!email || !password) return;
 		const user = await db.login(email, password);
 		const session = await db.newSession(user[0].id);
-		cookies.set('sessionid', JSON.stringify(session.id), { path: '/' });
-		cookies.set('sessionkey', JSON.stringify(session.key), { path: '/' });
+		cookies.set('sessionid', session.id, { path: '/' });
+		cookies.set('sessionkey', session.key, { path: '/' });
 	}
 };
