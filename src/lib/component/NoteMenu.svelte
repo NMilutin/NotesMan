@@ -1,10 +1,29 @@
 <script>
 	let { data = $bindable(), state } = $props();
-  
+
 	import Icon from '$lib/component/Icon.svelte';
+	import { enhance } from '$app/forms';
 </script>
 
-<div
+<form
+	method="POST"
+	action="?/none"
+	use:enhance={({ formData, submitter, cancel }) => {
+		if (submitter.classList.contains('note-del')) {
+			formData.append('noteIdDelete', data.activeObject.id);
+			return async () => {
+				state.delNote(data.activeObject);
+			};
+		} else if (submitter.classList.contains('note-accept')) {
+			formData.append('noteIdUpdate', data.activeObject.id);
+			return async () => {
+				state.confirmNoteEdit();
+			};
+		} else {
+			cancel();
+			return;
+		}
+	}}
 	class="note-menu"
 	style={`--background-color:${data.activeObject.backgroundColor}; --text-color:${data.activeObject.textColor}`}
 >
@@ -15,41 +34,33 @@
 		<button class="note-edit" onclick={state.toggleNoteEdit}
 			><Icon name="note-edit" width="1.5em"></Icon></button
 		>
-		<button
-			class="note-del"
-			onclick={function () {
-				state.delNote(data.activeObject);
-				state.hideOverlay();
-			}}><Icon name="note-del" width="1.5em"></Icon></button
+		<button class="note-del" formaction="?/delete_note"
+			><Icon name="note-del" width="1.5em"></Icon></button
 		>
 	{/if}
 	{#if data.editModeOn}
-		<h2><input bind:value={data.input.name} /></h2>
-		<h3><input type="date" bind:value={data.input.date} /></h3>
-		<p><textarea resize="false" bind:value={data.input.text}></textarea></p>
+		<h2><input name="name" bind:value={data.input.name} /></h2>
+		<h3><input name="date" type="date" bind:value={data.input.date} /></h3>
+		<p><textarea name="text" resize="false" bind:value={data.input.text}></textarea></p>
 		<button class="note-edit" onclick={state.toggleNoteEdit}
 			><Icon name="xmark" width="1.5em"></Icon></button
 		>
-		<button
-			class="note-del"
-			onclick={function () {
-				state.delNote(data.activeObject);
-				state.hideOverlay();
-			}}><Icon name="note-del" width="1.5em"></Icon></button
+		<button class="note-del" formaction="?/delete_note"
+			><Icon name="note-del" width="1.5em"></Icon></button
 		>
-		<button class="note-accept" onclick={state.confirmNoteEdit}
+		<button class="note-accept" formaction="?/update_note"
 			><Icon name="checkmark" width="1.5em"></Icon></button
 		>
 		<label>
 			Background color
-			<input type="color" bind:value={data.input.backgroundColor} />
+			<input name="backgroundColor" type="color" bind:value={data.input.backgroundColor} />
 		</label>
 		<label>
 			Text color
-			<input type="color" bind:value={data.input.textColor} />
+			<input name="textColor" type="color" bind:value={data.input.textColor} />
 		</label>
 	{/if}
-</div>
+</form>
 
 <style lang="scss">
 	.note-menu {

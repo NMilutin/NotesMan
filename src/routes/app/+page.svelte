@@ -14,7 +14,7 @@
 	import '$lib/style.scss';
 	import * as stateJs from '$lib/state.svelte.js';
 	const { data: loadData } = $props();
-	let data = $state(stateJs.data);
+	let data = stateJs.data;
 	loadData.notes = loadData.notes.map((note) => JSON.parse(note));
 	loadData.tasks = loadData.tasks.map((tasks) => JSON.parse(tasks));
 	loadData.goals = loadData.goals.map((goal) => JSON.parse(goal));

@@ -99,7 +99,7 @@ export const addGoal = function (goalId) {
 	if (!data.input.name || !data.input.text || !data.input.date) return false;
 	data.goals.push(
 		new Goal(
-      goalId,
+			goalId,
 			data.input.name,
 			data.input.text,
 			new Date(data.input.date),

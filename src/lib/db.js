@@ -132,19 +132,20 @@ export const update = {
 		await sql`
       delete
       from task_goal
-      where task_id not in (${taskIds.join(',')})
+      where task_id not in ${sql(taskIds)}
       and goal_id = ${goalId} 
     `;
-		const oldTaskIds = await sql`
+		const oldTaskIds = (
+			await sql`
       select task_id
       from task_goal
       where goal_id = ${goalId} 
-    `.map((obj) => obj.id);
+    `
+		).map((obj) => obj.id);
 		const newTaskIds = taskIds.filter((id) => !oldTaskIds.includes(id));
-		await sql`
-      insert into task_goal(task_id,goal_id) values
-      ${newTaskIds.map((taskId) => `(${taskId},${goalId})`).join(',')}
-    `;
+		newTaskIds.forEach((taskId) => {
+			sql`insert into task_goal (task_id,goal_id) values (${taskId},${goalId})`.execute();
+		});
 	}
 };
 export const remove = {
@@ -161,6 +162,10 @@ export const remove = {
     `;
 	},
 	async goal(goalId) {
+		await sql`
+      delete from task_goal
+      where goal_id=${goalId}
+    `;
 		await sql`
       delete from goals
       where id=${goalId}

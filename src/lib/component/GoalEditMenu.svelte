@@ -2,15 +2,36 @@
 	let { data = $bindable(), state } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
+	import { enhance } from '$app/forms';
 </script>
 
-<div
+<form
+	method="POST"
+	use:enhance={({ formData, submitter, cancel }) => {
+		if (submitter.classList.contains('goal-del')) {
+			formData.append('goalIdDelete', data.activeObject.id);
+			return async () => {
+				state.delGoal(data.activeObject);
+			};
+		}
+		if (submitter.classList.contains('goal-accept')) {
+			const taskIds = data.input.tasks.map((task) => task.id);
+			formData.append('goalIdUpdate', data.activeObject.id);
+			formData.append('taskIds', JSON.stringify(taskIds));
+			return async () => {
+				state.confirmGoalEdit();
+			};
+		} else {
+			cancel();
+			return;
+		}
+	}}
 	class="goal"
 	style={`--background-color:${data.activeObject.backgroundColor}; --text-color:${data.activeObject.textColor}`}
 >
-	<h2><input bind:value={data.input.name} /></h2>
-	<h3><input type="date" bind:value={data.input.date} /></h3>
-	<p><textarea resize="false" bind:value={data.input.text}></textarea></p>
+	<h2><input name="name" bind:value={data.input.name} /></h2>
+	<h3><input name="date" type="date" bind:value={data.input.date} /></h3>
+	<p><textarea name="text" resize="false" bind:value={data.input.text}></textarea></p>
 	<div class="task-select__container">
 		<div class="tasks__available">
 			{#each data.tasks.filter((task) => !data.input.tasks.includes(task)) as task}
@@ -33,24 +54,21 @@
 				</div>{/each}
 		</div>
 	</div>
-	<button
-		class="goal-del"
-		onclick={function () {
-			state.delGoal(data.activeObject);
-		}}><Icon name="note-del" width="1.5em"></Icon></button
+	<button class="goal-del" formaction="?/delete_goal"
+		><Icon name="note-del" width="1.5em"></Icon></button
 	>
-	<button class="goal-accept" onclick={state.confirmGoalEdit}
+	<button class="goal-accept" formaction="?/update_goal"
 		><Icon name="checkmark" width="1.5em"></Icon></button
 	>
 	<label>
 		Background color
-		<input type="color" bind:value={data.input.backgroundColor} />
+		<input name="backgroundColor" type="color" bind:value={data.input.backgroundColor} />
 	</label>
 	<label>
 		Text color
-		<input type="color" bind:value={data.input.textColor} />
+		<input name="textColor" type="color" bind:value={data.input.textColor} />
 	</label>
-</div>
+</form>
 
 <style lang="scss">
 	.goal {

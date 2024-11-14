@@ -105,5 +105,75 @@ export const actions = {
 			succes: true,
 			goalId: goalId
 		};
+	},
+	delete_note: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const noteId = data.get('noteIdDelete');
+		db.remove.note(noteId);
+	},
+	delete_goal: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const goalId = data.get('goalIdDelete');
+		db.remove.goal(goalId);
+	},
+	update_note: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const note = {
+			id: data.get('noteIdUpdate'),
+			name: data.get('name'),
+			text: data.get('text'),
+			date: data.get('date'),
+			backgroundColor: data.get('backgroundColor'),
+			textColor: data.get('textColor')
+		};
+		await db.update.note(
+			note.id,
+			note.name,
+			note.text,
+			note.date,
+			note.backgroundColor,
+			note.textColor
+		);
+	},
+	update_goal: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const goal = {
+			id: data.get('goalIdUpdate'),
+			name: data.get('name'),
+			text: data.get('text'),
+			date: data.get('date'),
+			backgroundColor: data.get('backgroundColor'),
+			textColor: data.get('textColor'),
+			taskIds: JSON.parse(data.get('taskIds'))
+		};
+		db.update.goal(
+			goal.id,
+			goal.name,
+			goal.text,
+			goal.date,
+			goal.backgroundColor,
+			goal.textColor,
+			...goal.taskIds
+		);
 	}
 };
