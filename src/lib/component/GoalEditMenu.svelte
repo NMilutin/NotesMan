@@ -29,12 +29,14 @@
 	class="goal"
 	style={`--background-color:${data.activeObject.backgroundColor}; --text-color:${data.activeObject.textColor}`}
 >
+	<!-- svelte-ignore a11y_missing_content -->
 	<h2><input name="name" bind:value={data.input.name} /></h2>
+	<!-- svelte-ignore a11y_missing_content -->
 	<h3><input name="date" type="date" bind:value={data.input.date} /></h3>
 	<p><textarea name="text" resize="false" bind:value={data.input.text}></textarea></p>
 	<div class="task-select__container">
 		<div class="tasks__available">
-			{#each data.tasks.filter((task) => !data.input.tasks.includes(task)) as task}
+			{#each data.tasks.filter((task) => !data.input.tasks.some((t) => t === task)) as task}
 				<div class="goal-create__task">
 					<span>{task.name}</span><button
 						onclick={function () {

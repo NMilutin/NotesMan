@@ -2,10 +2,11 @@
 	let { data = $bindable(), state } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
+	import { enhance } from '$app/forms';
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <h1 onclick={state.toggleTaskDatePicker}>
 	{#if data.taskDatePickerOn}<input
 			type="date"
@@ -17,7 +18,16 @@
 <div class="tasks__container">
 	{#each data.tasks as task, i}
 		{#if new Date(data.taskDate).getDate() === task.date.getDate() && new Date(data.taskDate).getMonth() === task.date.getMonth() && new Date(data.taskDate).getFullYear() === task.date.getFullYear()}
-			<div
+			<form
+				method="POST"
+				use:enhance={({ submitter, cancel }) => {
+					if (submitter.classList.contains('task-del')) {
+					} else if (submitter.classList.contains('task-do')) {
+					} else {
+						cancel();
+						return;
+					}
+				}}
 				class="task"
 				style={`--background-color:${task.backgroundColor};
         --text-color:${task.textColor};`}
@@ -37,7 +47,7 @@
 					>
 				</div>
 				<p>{task.text}</p>
-			</div>
+			</form>
 		{/if}
 	{/each}
 </div>

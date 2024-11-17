@@ -66,5 +66,7 @@ insert into tasks(name,text,date,background_color,text_color,done,user_id) value
 insert into goals(name,text,date,background_color,text_color,user_id) values
 ('Database test goal','This is a goal added directly with a query','2024-11-11 16:12:10','#DFDFCF','#000000',1)
 insert into task_goal(task_id,goal_id) values(1,1)
-*/
+
 alter table sessions add session_key_hash text not null
+*/
+delete from task_goal;
