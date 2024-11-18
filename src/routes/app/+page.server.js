@@ -175,5 +175,15 @@ export const actions = {
 			goal.textColor,
 			...goal.taskIds
 		);
+	},
+	delete_task: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const id = data.get('deleteTaskId');
+		db.remove.task(id);
 	}
 };

@@ -148,6 +148,10 @@ export const remove = {
 	},
 	async task(taskId) {
 		await sql`
+      delete from task_goal
+      where task_id=${taskId}
+    `;
+		await sql`
       delete from tasks
       where id=${taskId}
     `;

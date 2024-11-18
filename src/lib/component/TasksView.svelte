@@ -20,14 +20,17 @@
 		{#if new Date(data.taskDate).getDate() === task.date.getDate() && new Date(data.taskDate).getMonth() === task.date.getMonth() && new Date(data.taskDate).getFullYear() === task.date.getFullYear()}
 			<form
 				method="POST"
-				use:enhance={({ submitter, cancel }) => {
+				use:enhance={({ formData, submitter, cancel }) => {
 					if (submitter.classList.contains('task-del')) {
+						formData.append('deleteTaskId', data.tasks.at(+submitter.dataset.i).id);
+						state.delTask(+submitter.dataset.i);
 					} else if (submitter.classList.contains('task-do')) {
 					} else {
 						cancel();
 						return;
 					}
 				}}
+				action="?/none"
 				class="task"
 				style={`--background-color:${task.backgroundColor};
         --text-color:${task.textColor};`}
@@ -42,7 +45,7 @@
 						>{#if task.done}<Icon name="checkmark" width="1.5em"></Icon>{/if}</button
 					>
 					<h2>{task.name}</h2>
-					<button class="task-del" onclick={state.delTask.bind(this, i)}
+					<button class="task-del" formaction="?/delete_task"
 						><Icon name="note-del" width="1.5em"></Icon></button
 					>
 				</div>
