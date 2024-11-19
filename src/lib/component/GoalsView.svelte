@@ -2,6 +2,7 @@
 	let { data = $bindable(), state } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
+	import { enhance } from '$app/forms';
 
 	const isSameDay = function (date1, date2) {
 		return (
@@ -29,20 +30,30 @@
 						: 'Was due ' + goal.date.toDateString()}
 			</h3>
 			<p>{goal.text}</p>
-			<div class="goal__tasks">
+			<form
+				method="POST"
+				action="?/do_task"
+				use:enhance={({ formData, submitter }) => {
+					const taskId = +submitter.closest('.task').dataset.id;
+					const task = data.tasks.find((task) => task.id === taskId);
+					const taskIndex = data.tasks.indexOf(task);
+					state.doTask(taskIndex);
+					formData.append('doTaskId', task.id);
+					formData.append('done', task.done);
+					return;
+				}}
+				class="goal__tasks"
+			>
 				{#each goal.tasks as task}
-					<div class="task">
+					<div class="task" data-id={task.id}>
 						<h4>{task.name}</h4>
 						<p>{task.text}</p>
 						<button
-							onclick={function () {
-								state.doTask(data.tasks.findIndex((t) => t === task));
-							}}
 							>{#if task.done}<Icon name="checkmark" width="1.5em"></Icon>{/if}</button
 						>
 					</div>
 				{/each}
-			</div>
+			</form>
 			<button
 				class="goal-edit"
 				onclick={function () {

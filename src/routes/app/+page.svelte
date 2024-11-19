@@ -10,6 +10,7 @@
 	import TaskCreateMenu from '$lib/component/TaskCreateMenu.svelte';
 	import GoalCreateMenu from '$lib/component/GoalCreateMenu.svelte';
 	import NoteMenu from '$lib/component/NoteMenu.svelte';
+	import TaskEditMenu from '$lib/component/TaskEditMenu.svelte';
 	import GoalEditMenu from '$lib/component/GoalEditMenu.svelte';
 	import '$lib/style.scss';
 	import * as stateJs from '$lib/state.svelte.js';
@@ -80,11 +81,12 @@
 		{#if data.taskCreateMenuOn}<TaskCreateMenu {data} state={stateJs}></TaskCreateMenu>{/if}
 		{#if data.goalCreateMenuOn}<GoalCreateMenu {data} state={stateJs}></GoalCreateMenu>{/if}
 		{#if data.noteMenuOn}<NoteMenu {data} state={stateJs}></NoteMenu>{/if}
+		{#if data.taskEditMenuOn}<TaskEditMenu {data} state={stateJs}></TaskEditMenu>{/if}
 		{#if data.goalEditMenuOn}<GoalEditMenu {data} state={stateJs}></GoalEditMenu>{/if}
 	</div>
 {/if}
 
-<!-- TODO: baza podataka, login i signup, backup podataka-->
+<!-- TODO:  task edit menu style, signup, backup podataka-->
 <style lang="scss">
 	header {
 		display: flex;

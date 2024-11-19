@@ -28,6 +28,7 @@ export const data = $state({
 	noteMenuOn: false,
 	editModeOn: false,
 	taskDatePickerOn: false,
+	taskEditMenuOn: false,
 	goalEditMenuOn: false
 });
 export const clearInput = function () {
@@ -136,6 +137,7 @@ export const hideOverlay = function () {
 	data.editModeOn = false;
 	data.noteMenuOn = false;
 	data.goalEditMenuOn = false;
+	data.taskEditMenuOn = false;
 	toggleScroll();
 };
 export const showCreateMenu = function () {
@@ -210,8 +212,29 @@ export const confirmGoalEdit = function () {
 	goal.tasks = [...data.input.tasks];
 	goal.backgroundColor = data.input.backgroundColor;
 	goal.textColor = data.input.textColor;
-	data.goalEditMenuOn = false;
-	data.overlayOn = false;
+	clearInput();
+	hideOverlay();
+};
+
+export const toggleTaskEdit = function (i) {
+	data.overlayOn = true;
+	data.activeObject = data.tasks.at(i);
+	const task = data.activeObject;
+	data.taskEditMenuOn = true;
+	data.input.name = task.name;
+	data.input.text = task.text;
+	data.input.date = task.date.toISOString().slice(0, 10);
+	data.input.backgroundColor = task.backgroundColor;
+	data.input.textColor = task.textColor;
+};
+
+export const confirmTaskEdit = function () {
+	const task = data.activeObject;
+	task.name = data.input.name;
+	task.text = data.input.text;
+	task.date = new Date(data.input.date);
+	task.backgroundColor = data.input.backgroundColor;
+	task.textColor = data.input.textColor;
 	clearInput();
 	hideOverlay();
 };

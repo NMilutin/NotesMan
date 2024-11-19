@@ -4,13 +4,16 @@ import { Goal } from '$lib/class/Goal.svelte.js';
 
 import { formatISO9075 } from 'date-fns';
 import sql from './postgresClient';
-export const register = function (email, password) {
+export const register = async function (email, password) {
 	try {
 		if (password.length > 72) throw new Error('Password length shouldnt be more than 72');
-		sql`
+		return (
+			await sql`
     insert into users(email,password_hash) values
-    (${email},crypt(${password},gen_salt('bf')));
-  `;
+    (${email},crypt(${password},gen_salt('bf')))
+    returning id;
+  `
+		)[0].id;
 	} catch (e) {
 		throw e;
 	}
@@ -118,10 +121,22 @@ export const update = {
       where id=${noteId}; 
     `;
 	},
-	async task(taskId, name, text, date, bgColor, textColor, done) {
+	async task(taskId, name, text, date, bgColor, textColor) {
 		await sql`
-      update tasks set name=${name},text=${text},date=${date},background_color=${bgColor},text_color=${textColor},done=${done}
+      update tasks set name=${name},text=${text},date=${date},background_color=${bgColor},text_color=${textColor}
       where id=${taskId}; 
+    `;
+	},
+	async doTask(taskId, done) {
+		if (done === 'true')
+			await sql`
+      update tasks set done=TRUE
+      where id=${taskId};
+    `;
+		if (done === 'false')
+			await sql`
+      update tasks set done=FALSE
+      where id=${taskId};
     `;
 	},
 	async goal(goalId, name, text, date, bgColor, textColor, ...taskIds) {

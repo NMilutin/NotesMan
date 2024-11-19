@@ -21,10 +21,14 @@
 			<form
 				method="POST"
 				use:enhance={({ formData, submitter, cancel }) => {
+					const taskIndex = submitter.closest('form.task').dataset.i;
 					if (submitter.classList.contains('task-del')) {
-						formData.append('deleteTaskId', data.tasks.at(+submitter.dataset.i).id);
-						state.delTask(+submitter.dataset.i);
+						formData.append('deleteTaskId', data.tasks.at(taskIndex).id);
+						state.delTask(taskIndex);
 					} else if (submitter.classList.contains('task-do')) {
+						state.doTask(i);
+						formData.append('doTaskId', data.tasks.at(taskIndex).id);
+						formData.append('done', data.tasks.at(taskIndex).done);
 					} else {
 						cancel();
 						return;
@@ -37,14 +41,16 @@
 				data-i={i}
 			>
 				<div class="task-title">
-					<button
-						class="task-do"
-						onclick={function () {
-							state.doTask(i);
-						}}
+					<button class="task-do" formaction="?/do_task"
 						>{#if task.done}<Icon name="checkmark" width="1.5em"></Icon>{/if}</button
 					>
 					<h2>{task.name}</h2>
+					<button
+						class="task-edit"
+						onclick={() => {
+							state.toggleTaskEdit(i);
+						}}><Icon name="note-edit" width="1.5em"></Icon></button
+					>
 					<button class="task-del" formaction="?/delete_task"
 						><Icon name="note-del" width="1.5em"></Icon></button
 					>
@@ -115,6 +121,9 @@
 				}
 				.task-do {
 					left: 0.75em;
+				}
+				.task-edit {
+					right: 3.75em;
 				}
 			}
 			p {

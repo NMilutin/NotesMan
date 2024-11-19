@@ -9,8 +9,8 @@ export default defineConfig({
 				api: 'modern'
 			}
 		}
-	},
-	server: {
-		hmr: false
 	}
+	// server: {
+	// 	// hmr: false
+	// }
 });

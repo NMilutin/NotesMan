@@ -1,9 +1,19 @@
 import * as db from '$lib/db.js';
-export async function load({ cookies }) {
-	const id = JSON.parse(cookies.get('sessionid') || '""');
+import { redirect } from '@sveltejs/kit';
+const isSessionValid = async function (cookies) {
+	const [sessionId, sessionKey] = [cookies.get('sessionid'), cookies.get('sessionkey')];
+	if (!sessionId || !sessionKey) return false;
+	const valid = await db.isSessionValid(sessionId, sessionKey);
 	return {
-		sessionId: id
+		sessionId: sessionId,
+		valid: valid
 	};
+};
+export async function load({ cookies }) {
+	const { valid } = await isSessionValid(cookies);
+	if (valid) {
+		redirect(302, '/app');
+	}
 }
 export const actions = {
 	default: async ({ cookies, request }) => {

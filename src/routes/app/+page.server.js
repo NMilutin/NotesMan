@@ -1,5 +1,5 @@
 import * as db from '$lib/db.js';
-
+import { redirect } from '@sveltejs/kit';
 export const ssr = false;
 
 const isSessionValid = async function (cookies) {
@@ -14,10 +14,7 @@ const isSessionValid = async function (cookies) {
 
 export const load = async function ({ cookies }) {
 	const { sessionId, valid } = await isSessionValid(cookies);
-	if (!valid)
-		return {
-			loggedIn: false
-		};
+	if (!valid) redirect(307, '/login');
 	return await db.loadState(sessionId);
 };
 
@@ -185,5 +182,33 @@ export const actions = {
 		const data = await request.formData();
 		const id = data.get('deleteTaskId');
 		db.remove.task(id);
+	},
+	do_task: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const id = data.get('doTaskId');
+		const done = data.get('done');
+		db.update.doTask(id, done);
+	},
+	update_task: async ({ cookies, request }) => {
+		const { valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const task = {
+			id: data.get('taskIdUpdate'),
+			name: data.get('name'),
+			text: data.get('text'),
+			date: data.get('date'),
+			backgroundColor: data.get('backgroundColor'),
+			textColor: data.get('textColor')
+		};
+		db.update.task(task.id, task.name, task.text, task.date, task.backgroundColor, task.textColor);
 	}
 };

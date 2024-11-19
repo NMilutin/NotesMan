@@ -1,7 +1,3 @@
-<script>
-	let { data, form } = $props();
-</script>
-
 <form method="POST">
 	<label
 		>Email
@@ -13,7 +9,3 @@
 	</label>
 	<button>Log In</button>
 </form>
-
-{#if form?.succes}
-	<p>You are logged in! You will be redirected shortly.</p>
-{/if}
