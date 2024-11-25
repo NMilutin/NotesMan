@@ -20,6 +20,16 @@ export const load = async function ({ cookies }) {
 
 export const actions = {
 	none: async () => {},
+	logout: async ({ cookies }) => {
+		const sessionId = cookies.get('sessionid');
+		db.logout(sessionId);
+		cookies.delete('sessionid', { path: '/' });
+		cookies.delete('sessionkey', { path: '/' });
+		redirect(307, '/login');
+	},
+	settings: async () => {
+		redirect(302, '/app/settings');
+	},
 	create_note: async ({ cookies, request }) => {
 		const { sessionId, valid } = await isSessionValid(cookies);
 		if (!valid)

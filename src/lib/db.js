@@ -76,7 +76,11 @@ export const isSessionValid = async function (sessionId, key) {
 	else await sql`delete from sessions where id=${sessionId}`;
 	return !expired;
 };
-
+export const logout = async function (sessionId) {
+	await sql`
+    delete from sessions where id=${sessionId}
+  `;
+};
 export const insert = {
 	async note(sessionId, name, text, date, bgColor, textColor) {
 		const userId = (await sql`select user_id from sessions where id=${sessionId} limit 1`)[0]
@@ -189,6 +193,7 @@ export const loadState = async function (sessionId) {
 		goals: []
 	};
 	const userId = (await sql`select user_id from sessions where id=${sessionId}`)[0].user_id;
+	data.email = (await sql`select email from users where id=${userId}`)[0].email;
 	const notes = await sql`
     select * from notes where user_id = ${userId};
   `;

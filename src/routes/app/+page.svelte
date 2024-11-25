@@ -14,6 +14,7 @@
 	import GoalEditMenu from '$lib/component/GoalEditMenu.svelte';
 	import '$lib/style.scss';
 	import * as stateJs from '$lib/state.svelte.js';
+	import { enhance } from '$app/forms';
 	const { data: loadData } = $props();
 	let data = stateJs.data;
 	loadData.notes = loadData.notes.map((note) => JSON.parse(note));
@@ -36,6 +37,21 @@
 </script>
 
 <header>
+	<nav>
+		<div class="logo">
+			<Icon name="notepad" width="4em"></Icon>
+			<h1>NotesMan</h1>
+		</div>
+		<form action="?/none" method="POST">
+			<h2>{loadData.email}</h2>
+			<button formaction="?/settings"
+				><Icon name="btn-settings" width="2em"></Icon><span>Settings</span></button
+			>
+			<button formaction="?/logout"
+				><Icon name="btn-logout" width="2em"></Icon><span>Log Out</span></button
+			>
+		</form>
+	</nav>
 	<div class="note__types">
 		{#each data.types as type}
 			<button
@@ -86,15 +102,47 @@
 	</div>
 {/if}
 
-<!-- TODO:  task edit menu style, signup, backup podataka-->
+<!-- TODO:  account settings, backup podataka, email verification, dark mode, preferences local storage-->
 <style lang="scss">
 	header {
 		display: flex;
 		width: 100%;
+		flex-wrap: wrap;
+		nav {
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+			font-size: 2em;
+			border-bottom: #343434 solid 3px;
+			.logo {
+				display: flex;
+				align-items: center;
+				& > * {
+					font-size: 1.5em;
+				}
+			}
+			form {
+				display: flex;
+				gap: 2em;
+				justify-content: right;
+				padding: 1.5em;
+				h2 {
+					font-size: 1.3em;
+				}
+				button {
+					font-size: 1em;
+					background-color: inherit;
+					display: flex;
+					align-items: center;
+					cursor: pointer;
+				}
+			}
+		}
 		.note__types {
 			display: flex;
 			flex: 9;
 			.note-type {
+				font-size: 1em;
 				flex: 1;
 				text-align: center;
 				padding: 20px;

@@ -3,12 +3,15 @@
 	margin: 0;
 	border: none;
 	padding: 0;
-	font-family: sans-serif;
+	font-family: sans;
 	font-size: 16px;
 }
 html {
 	min-height: 100vh;
 	scrollbar-gutter: stable;
+	body {
+		margin: 0;
+	}
 }
 .noscroll {
 	overflow: hidden;
