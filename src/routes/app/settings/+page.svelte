@@ -1,9 +1,16 @@
 <script>
 	import Icon from '../../../lib/component/Icon.svelte';
 	import '$lib/style.scss';
+	import { enhance } from '$app/forms';
 </script>
 
-<form method="POST">
+<form
+	method="POST"
+	use:enhance={({ formData, action: { search: formAction }, cancel }) => {
+		formAction = formAction.slice(2);
+		if (formAction === 'back') return;
+	}}
+>
 	<button formaction="?/back" class="back"
 		><Icon name="btn-back" width="2em"></Icon><span>Back</span></button
 	>
@@ -93,6 +100,10 @@
 					padding-top: 1em;
 					button {
 						width: fit-content;
+					}
+				}
+				&.other-settings {
+					button {
 						&.delete-account {
 							background-color: #bc4222;
 							color: #f1f1f1;
