@@ -2,14 +2,25 @@
 	import Icon from '../../../lib/component/Icon.svelte';
 	import '$lib/style.scss';
 	import { enhance } from '$app/forms';
+
+	const { data: loadData } = $props();
 </script>
 
+<nav>
+	<form action="?/none" method="POST">
+		<h2>{loadData.email}</h2>
+		<button formaction="?/logout"
+			><Icon name="btn-logout" width="2em"></Icon><span>Log Out</span></button
+		>
+	</form>
+</nav>
 <form
 	method="POST"
 	use:enhance={({ formData, action: { search: formAction }, cancel }) => {
 		formAction = formAction.slice(2);
 		if (formAction === 'back') return;
 	}}
+	action="?/none"
 >
 	<button formaction="?/back" class="back"
 		><Icon name="btn-back" width="2em"></Icon><span>Back</span></button
@@ -45,6 +56,30 @@
 </form>
 
 <style lang="scss">
+	nav {
+		width: 100%;
+		display: flex;
+		justify-content: right;
+		font-size: 2em;
+		border-bottom: #343434 solid 3px;
+		form {
+			display: flex;
+			flex-direction: row;
+			gap: 2em;
+			justify-content: right;
+			padding: 1.5em;
+			h2 {
+				font-size: 1.3em;
+			}
+			button {
+				font-size: 1em;
+				background-color: inherit;
+				display: flex;
+				align-items: center;
+				cursor: pointer;
+			}
+		}
+	}
 	button {
 		border: none;
 		background-color: inherit;

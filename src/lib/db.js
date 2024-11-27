@@ -65,7 +65,7 @@ export const isSessionValid = async function (sessionId, key) {
     select session_key_hash=crypt(${key},session_key_hash) val
     from sessions where id=${sessionId};
   `
-	)[0].val;
+	)[0]?.val;
 	if (!isKeyCorrect) return isKeyCorrect;
 	const now = new Date();
 	const expireSql = (await sql`select expires from sessions where id=${sessionId} limit 1`)[0]
@@ -80,6 +80,19 @@ export const logout = async function (sessionId) {
 	await sql`
     delete from sessions where id=${sessionId}
   `;
+};
+export const updateEmail = async function (sessionId, newEmail) {
+	const userId = (await sql`select user_id from sessions where id=${sessionId}`)[0].user_id;
+	// TODO: Trenutno ovo samo promeni imejl bez slanja verifikacije. SMTP server ni ne postoji u okviru programa
+	await sql`update users set email=${newEmail} where id=${userId}`;
+};
+export const updatePassword = async function (sessionId, oldPassword, newPassword) {
+	const userId = (await sql`select user_id from sessions where id=${sessionId}`)[0].user_id;
+	const isOldPasswordCorrect = (
+		await sql`select password_hash=crypt(${oldPassword},password_hash) is_correct from users where id=${userId}`
+	)[0].is_correct;
+	if (isOldPasswordCorrect)
+		await sql`update users set password_hash=crypt(${newPassword},gen_salt('bf'))`;
 };
 export const insert = {
 	async note(sessionId, name, text, date, bgColor, textColor) {
