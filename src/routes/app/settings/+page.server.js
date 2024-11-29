@@ -52,6 +52,5 @@ export const actions = {
 		const oldPassword = data.get('oldPassword');
 		const newPassword = data.get('newPassword');
 		db.updatePassword(sessionId, oldPassword, newPassword);
-	},
-	backup_data: async ({ request }) => {}
+	}
 };

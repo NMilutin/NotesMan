@@ -7,53 +7,58 @@
 </script>
 
 <nav>
-	<form action="?/none" method="POST">
+	<form
+		action="?/none"
+		method="POST"
+		use:enhance={({ action: { search: formAction }, cancel }) => {
+			formAction = formAction.slice(2);
+			if (formAction === 'back') {
+				return;
+			}
+		}}
+	>
+		<button formaction="?/back" class="back"
+			><Icon name="btn-back" width="2em"></Icon><span>Back</span></button
+		>
 		<h2>{loadData.email}</h2>
 		<button formaction="?/logout"
 			><Icon name="btn-logout" width="2em"></Icon><span>Log Out</span></button
 		>
 	</form>
 </nav>
-<form
-	method="POST"
-	use:enhance={({ formData, action: { search: formAction }, cancel }) => {
-		formAction = formAction.slice(2);
-		if (formAction === 'back') return;
-	}}
-	action="?/none"
->
-	<button formaction="?/back" class="back"
-		><Icon name="btn-back" width="2em"></Icon><span>Back</span></button
-	>
-	<div class="inner-form">
-		<div class="inner-settings email-settings">
-			<label
-				>New Email:
-				<input name="newEmail" type="email" />
-			</label>
-			<button formaction="?/new_email">Send Verification</button>
-		</div>
-		<div class="inner-settings password-settings">
-			<label>
-				Old Password:
-				<input name="oldPassword" type="password" />
-			</label>
-			<label>
-				New Password:
-				<input name="newPassword" type="password" />
-			</label>
-			<button formaction="?/new_password">Change Password</button>
-		</div>
-		<div class="inner-settings other-settings">
-			<button formaction="?/backup_data" class="download-data"
-				><Icon name="btn-backup" width="1.5em"></Icon><span>Download Data</span></button
-			>
-			<button formaction="?/none" class="delete-account">
-				<Icon name="note-del" width="1.5em"></Icon><span>Delete Account</span></button
-			>
-		</div>
-	</div>
-</form>
+<div class="settings">
+	<form method="POST" action="?/new_email" use:enhance={({}) => {}} class="settings__email">
+		<label
+			>New Email:
+			<input name="newEmail" type="email" />
+		</label>
+		<button>Send Verification</button>
+	</form>
+	<form method="POST" action="?/new_password" use:enhance={({}) => {}} class="settings__password">
+		<label>
+			Old Password:
+			<input name="oldPassword" type="password" />
+		</label>
+		<label>
+			New Password:
+			<input name="newPassword" type="password" />
+		</label>
+		<button>Change Password</button>
+	</form>
+	<form method="GET" action="/download" class="settings__backup">
+		<label
+			><Icon name="btn-backup" width="1.5em"></Icon><input
+				type="submit"
+				value="Download Data"
+			/></label
+		>
+	</form>
+	<form method="POST" use:enhance={({}) => {}} class="settings__delete">
+		<button formaction="?/none" class="delete-account">
+			<Icon name="note-del" width="1.5em"></Icon><span>Delete Account</span></button
+		>
+	</form>
+</div>
 
 <style lang="scss">
 	nav {
@@ -68,6 +73,14 @@
 			gap: 2em;
 			justify-content: right;
 			padding: 1.5em;
+			button.back {
+				position: absolute;
+				top: 1em;
+				left: 1em;
+				display: flex;
+				align-items: center;
+				gap: 0.5em;
+			}
 			h2 {
 				font-size: 1.3em;
 			}
@@ -88,24 +101,20 @@
 		cursor: pointer;
 		outline: none;
 	}
-	form {
+	.settings {
 		font-family: sans;
-		padding: 5em 10em 0;
+		padding: 5em 30vw 0;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		button.back {
-			position: absolute;
-			top: 1em;
-			left: 1em;
-			display: flex;
-			align-items: center;
-			gap: 0.5em;
-		}
-		.inner-form {
+		gap: 1.5em;
+		form {
 			display: flex;
 			flex-direction: column;
-			gap: 1.5em;
+			gap: 1em;
+			width: 100%;
+			border-top: 2px solid #343434;
+			padding-top: 1.5em;
 			input {
 				padding: 0.2em;
 				border: 2px solid #343434;
@@ -122,31 +131,44 @@
 				gap: 0.5em;
 				box-shadow: 0px 3px 3px 2px rgba(0, 0, 0, 0.15);
 			}
-			.inner-settings {
+		}
+		form.settings__email {
+			align-items: start;
+			border-top: none;
+		}
+		&__password {
+			padding-top: 1em;
+			button {
+				width: fit-content;
+			}
+		}
+		&__backup {
+			label {
 				display: flex;
-				gap: 1em;
-				&.email-settings {
-					align-items: center;
+				align-items: center;
+				border: 2px solid #343434;
+				border-radius: 999px;
+				padding: 0.5em;
+				gap: 0.5em;
+				box-shadow: 0px 3px 3px 2px rgba(0, 0, 0, 0.15);
+				width: fit-content;
+				cursor: pointer;
+				input {
+					cursor: pointer;
+					border: none;
+					box-shadow: none;
+					padding: initial;
+					border-radius: initial;
 				}
-				&.password-settings,
-				&.other-settings {
-					flex-direction: column;
-					border-top: 2px solid #343434;
-					padding-top: 1em;
-					button {
-						width: fit-content;
-					}
-				}
-				&.other-settings {
-					button {
-						&.delete-account {
-							background-color: #bc4222;
-							color: #f1f1f1;
-							border-color: #f1f1f1;
-							fill: #f1f1f1;
-						}
-					}
-				}
+			}
+		}
+		&__delete {
+			button {
+				background-color: #bc4222;
+				color: #f1f1f1;
+				border-color: #f1f1f1;
+				fill: #f1f1f1;
+				width: fit-content;
 			}
 		}
 	}
