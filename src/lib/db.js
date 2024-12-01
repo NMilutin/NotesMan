@@ -4,6 +4,7 @@ import { Goal } from '$lib/class/Goal.svelte.js';
 
 import { formatISO9075 } from 'date-fns';
 import sql from './postgresClient';
+import mail from './mailClient';
 export const register = async function (email, password) {
 	try {
 		if (password.length > 72) throw new Error('Password length shouldnt be more than 72');

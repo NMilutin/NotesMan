@@ -10,8 +10,6 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@supabase/auth-helpers-sveltekit": "^0.13.0",
-		"@supabase/supabase-js": "^2.46.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.5.27",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
@@ -24,6 +22,7 @@
 	"type": "module",
 	"dependencies": {
 		"date-fns": "^4.1.0",
+		"nodemailer": "^6.9.16",
 		"postgres": "^3.4.5"
 	}
 }
