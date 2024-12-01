@@ -11,7 +11,7 @@
 				class="note"
 				style={`--background-color:${note.backgroundColor};
         --text-color:${note.textColor};`}
-				onclick={function (e) {
+				onclick={function () {
 					state.showNote(note);
 				}}
 			>

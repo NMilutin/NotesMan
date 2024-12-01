@@ -2,8 +2,22 @@
 	import Icon from '../../../lib/component/Icon.svelte';
 	import '$lib/style.scss';
 	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 
 	const { data: loadData } = $props();
+
+	const download = async function () {
+		const url = $page.url.origin + '/download';
+		const res = await fetch(url);
+		const data = await res.json();
+		const blob = new Blob([JSON.stringify(data)], { type: 'text/plain' });
+		const blobURL = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.setAttribute('href', blobURL);
+		a.setAttribute('download', 'backup.json');
+		a.click();
+		URL.revokeObjectURL(blobURL);
+	};
 </script>
 
 <nav>
@@ -45,14 +59,9 @@
 		</label>
 		<button>Change Password</button>
 	</form>
-	<form method="GET" action="/download" class="settings__backup">
-		<label
-			><Icon name="btn-backup" width="1.5em"></Icon><input
-				type="submit"
-				value="Download Data"
-			/></label
-		>
-	</form>
+	<div class="settings__backup">
+		<Icon name="btn-backup" width="1.5em"></Icon><button onclick={download}>Download Data</button>
+	</div>
 	<form method="POST" use:enhance={({}) => {}} class="settings__delete">
 		<button formaction="?/none" class="delete-account">
 			<Icon name="note-del" width="1.5em"></Icon><span>Delete Account</span></button

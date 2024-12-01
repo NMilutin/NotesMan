@@ -251,3 +251,39 @@ export const loadState = async function (sessionId) {
 	);
 	return data;
 };
+export const backupData = async function (sessionId) {
+	const [{ user_id: id }] = await sql`
+    select user_id
+    from sessions
+    where id = ${sessionId}
+  `;
+	const notes = Array.from(
+		await sql`
+    select name,text,date,background_color,text_color
+    from notes
+    where user_id = ${id}
+  `
+	);
+	const tasks = Array.from(
+		await sql`
+    select id,name,text,date,background_color,text_color,done
+    from tasks
+    where user_id = ${id}
+  `
+	);
+	const goals = Array.from(
+		await sql`
+    select id,name,text,date,background_color,text_color
+    from goals
+    where user_id = ${id}
+  `
+	);
+	const task_goal = Array.from(
+		await sql`
+    select task_id,goal_id
+    from task_goal join goals
+    on goal_id = goals.id and user_id = ${id}
+  `
+	);
+	return { notes, tasks, goals, task_goal };
+};
