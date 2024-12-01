@@ -52,5 +52,14 @@ export const actions = {
 		const oldPassword = data.get('oldPassword');
 		const newPassword = data.get('newPassword');
 		db.updatePassword(sessionId, oldPassword, newPassword);
+	},
+	delete_account: async ({ cookies, request }) => {
+		const { sessionId, valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		db.deleteAccount(sessionId);
+		redirect(307, '/');
 	}
 };

@@ -60,10 +60,12 @@
 		<button>Change Password</button>
 	</form>
 	<div class="settings__backup">
-		<Icon name="btn-backup" width="1.5em"></Icon><button onclick={download}>Download Data</button>
+		<button onclick={download}
+			><Icon name="btn-backup" width="1.5em"></Icon><span>Download Data</span></button
+		>
 	</div>
-	<form method="POST" use:enhance={({}) => {}} class="settings__delete">
-		<button formaction="?/none" class="delete-account">
+	<form method="POST" action="?/delete_account" use:enhance={({}) => {}} class="settings__delete">
+		<button class="delete-account">
 			<Icon name="note-del" width="1.5em"></Icon><span>Delete Account</span></button
 		>
 	</form>
@@ -151,8 +153,14 @@
 				width: fit-content;
 			}
 		}
-		&__backup {
-			label {
+		.settings__backup {
+			display: flex;
+			flex-direction: column;
+			gap: 1em;
+			width: 100%;
+			border-top: 2px solid #343434;
+			padding-top: 1.5em;
+			button {
 				display: flex;
 				align-items: center;
 				border: 2px solid #343434;
@@ -161,21 +169,15 @@
 				gap: 0.5em;
 				box-shadow: 0px 3px 3px 2px rgba(0, 0, 0, 0.15);
 				width: fit-content;
-				cursor: pointer;
-				input {
-					cursor: pointer;
-					border: none;
-					box-shadow: none;
-					padding: initial;
-					border-radius: initial;
-				}
 			}
 		}
-		&__delete {
+
+		.settings__delete {
+			border-top: none;
+			padding-top: 0;
 			button {
 				background-color: #bc4222;
 				color: #f1f1f1;
-				border-color: #f1f1f1;
 				fill: #f1f1f1;
 				width: fit-content;
 			}

@@ -287,3 +287,40 @@ export const backupData = async function (sessionId) {
 	);
 	return { notes, tasks, goals, task_goal };
 };
+export const deleteAccount = async function (sessionId) {
+	const [{ user_id: id }] = await sql`
+    select user_id
+    from sessions
+    where id = ${sessionId}
+  `;
+	await sql`
+    delete
+    from notes
+    where user_id = ${id};
+  `;
+	await sql`
+    delete
+    from task_goal
+    where task_id in (select id from tasks where user_id = ${id}) or goal_id in (select id from goals where user_id=${id});
+  `;
+	await sql`
+    delete
+    from tasks
+    where user_id = ${id};
+  `;
+	await sql`
+    delete
+    from goals
+    where user_id = ${id};
+  `;
+	await sql`
+    delete
+    from sessions
+    where user_id = ${id};
+  `;
+	await sql`
+    delete
+    from users
+    where id = ${id}
+  `;
+};
