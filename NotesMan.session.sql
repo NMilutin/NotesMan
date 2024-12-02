@@ -70,4 +70,13 @@ insert into task_goal(task_id,goal_id) values(1,1)
 
 alter table sessions add session_key_hash text not null
 */
-delete from task_goal;
+alter table users add activated boolean default false not null;
+update users set activated = true;
+create TABLE activations (
+  id serial primary key,
+  code uuid default gen_random_uuid() not null,
+  user_id int unique not null,
+  created timestamp default now() not null,
+  expires timestamp not null,
+  foreign key (user_id) references users(id)
+)

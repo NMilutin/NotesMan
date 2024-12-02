@@ -21,12 +21,24 @@ export const register = async function (email, password) {
 };
 
 export const login = async function (email, password) {
-	const id = await sql`
+	const res = await sql`
     select id
     from users
-    where email=${email}
-    and password_hash=crypt(${password},password_hash); 
+    where email=${email} 
   `;
+	if (!res?.[0]?.id)
+		return { code: 'NOT_EXIST', message: "Account with entered email doesn't exist!" };
+	const id = res[0].id;
+	const [{ activated: isActivated }] = await sql`
+    select activated
+    from users where id=${id};
+  `;
+	if (!isActivated) return { code: 'NOT_ACT', message: 'Account not activated!' };
+	const [{ is_correct: isCorrect }] = await sql`
+    select password_hash=crypt(${password},password_hash) as is_correct
+    from users where id=${id};
+  `;
+	if (!isCorrect) return { code: 'WRONG_PAS', message: 'Wrong password!' };
 	return id;
 };
 export const newSession = async function (id) {

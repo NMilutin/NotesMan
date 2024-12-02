@@ -14,6 +14,14 @@ export async function load({ cookies }) {
 	if (valid) {
 		redirect(302, '/app');
 	}
+	const code = cookies.get('errorCode');
+	const message = cookies.get('errorMessage');
+	cookies.delete('errorCode', { path: '/login' });
+	cookies.delete('errorMessage', { path: '/login' });
+	return {
+		code,
+		message
+	};
 }
 export const actions = {
 	default: async ({ cookies, request }) => {
@@ -22,7 +30,12 @@ export const actions = {
 		const password = data.get('password');
 		if (!email || !password) return;
 		const user = await db.login(email, password);
-		const session = await db.newSession(user[0].id);
+		if (typeof user !== 'string' && user.code) {
+			cookies.set('errorCode', user.code, { path: '/login' });
+			cookies.set('errorMessage', user.message, { path: '/login' });
+			return;
+		}
+		const session = await db.newSession(user);
 		cookies.set('sessionid', session.id, { path: '/' });
 		cookies.set('sessionkey', session.key, { path: '/' });
 	}
