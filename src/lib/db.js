@@ -5,19 +5,76 @@ import { Goal } from '$lib/class/Goal.svelte.js';
 import { formatISO9075 } from 'date-fns';
 import sql from './postgresClient';
 import mail from './mailClient';
-export const register = async function (email, password) {
-	try {
-		if (password.length > 72) throw new Error('Password length shouldnt be more than 72');
-		return (
-			await sql`
+import { randomInt } from 'node:crypto';
+import { send } from 'vite';
+
+export const sendActivation = async function (id) {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	let otp = '';
+	for (let i = 0; i < 8; i++) otp += chars.at(randomInt(0, 35));
+	const d = new Date();
+	await sql`
+    delete from activations where user_id = ${id};
+  `;
+	await sql`
+    insert into activations(code_hash,user_id,created,expires) values
+    (
+      crypt(${otp},gen_salt('bf')),
+      ${id},
+      ${formatISO9075(d)},
+      ${formatISO9075(new Date(d.getTime() + 1000 * 10 * 60))}
+    )
+  `;
+	const [{ email: accountEmail }] = await sql`select email from users where id=${id}`;
+	const sentEmail = await mail.sendMail({
+		from: 'NotesMan <notesman@zohomail.eu>',
+		to: accountEmail,
+		subject: 'NotesMan account activation',
+		text: `The code for activating your NotesMan account is ${otp} and it will expire after 10 minutes. If you didn't request a NotesMan account you can ignore this email.`,
+		html: `
+      <body>
+        <h1>NotesMan</h1>
+        <hr/>
+        <p>The code for activating your NotesMan account is</p>
+        <h2><strong>${otp}</strong></h2>
+        <p>If you didn't request a NotesMan account you can safely ignore this email.</p> 
+      <style>
+      body {font-family: sans-serif;}
+      h2 {text-align: center;}
+      </style>
+    `
+	});
+};
+
+export const register = async function (email, password = '') {
+	if (password.length < 8)
+		return { code: 'SHORT_PAS', message: 'Password must be at least 8 characters long' };
+	if (password.length > 72)
+		return { code: 'LONG_PAS', message: "Password can't be longer than 72 characters" };
+	const [{ id }] = await sql`
     insert into users(email,password_hash) values
     (${email},crypt(${password},gen_salt('bf')))
     returning id;
-  `
-		)[0].id;
-	} catch (e) {
-		throw e;
-	}
+  `;
+	await sendActivation(id);
+};
+
+export const activate = async function (email, otp) {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	if (otp.length !== 8) return { code: 'BAD_LEN', message: 'The code should be 8 characters long' };
+	let valid = true;
+	otp.split('').forEach((char) => {
+		if (!chars.includes(char)) valid = false;
+	});
+	if (!valid) return { code: 'BAD_CHAR', message: 'The code has non alphanumeric characters' };
+	const [{ id }] = await sql`select id from users where email=${email}`;
+	const [{ is_correct: isCorrect, expired }] = await sql`
+    select code_hash=crypt(${otp},code_hash) as is_correct, extract(second from now()-expires) > 0 exprired
+    from activations where user_id=${id}
+  `;
+	if (!isCorrect) return { code: 'WRONG_CODE', message: 'Incorrect code' };
+	if (expired) return { code: 'EXP_CODE', message: 'Expired code' };
+	return id;
 };
 
 export const login = async function (email, password) {
@@ -85,7 +142,7 @@ export const isSessionValid = async function (sessionId, key) {
 		.expires;
 	const expire = new Date(expireSql);
 	const expired = expire - now < 0;
-	if (!expired) refreshSession(sessionId, key);
+	if (!expired) await refreshSession(sessionId, key);
 	else await sql`delete from sessions where id=${sessionId}`;
 	return !expired;
 };

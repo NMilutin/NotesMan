@@ -7,10 +7,8 @@ export const actions = {
 		const password = data.get('password');
 		const repeatPassword = data.get('repeatPassword');
 		if (password !== repeatPassword) return;
-		const id = await db.register(email, password);
-		const session = await db.newSession(id);
-		cookies.set('sessionid', session.id, { path: '/' });
-		cookies.set('sessionkey', session.key, { path: '/' });
-		redirect(302, '/app');
+		await db.register(email, password);
+		cookies.set('email', email, {path: '/activate'});
+		redirect(302, '/activate');
 	}
 };
