@@ -33,6 +33,10 @@ export const actions = {
 		if (typeof user !== 'string' && user.code) {
 			cookies.set('errorCode', user.code, { path: '/login' });
 			cookies.set('errorMessage', user.message, { path: '/login' });
+			if (user.code === 'NOT_ACT') {
+				cookies.set('email', email, { path: '/activate' });
+				redirect(302, '/acitvate');
+			}
 			return;
 		}
 		const session = await db.newSession(user);

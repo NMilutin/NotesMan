@@ -8,7 +8,7 @@ import mail from './mailClient';
 import { randomInt } from 'node:crypto';
 import { send } from 'vite';
 
-export const sendActivation = async function (id) {
+const sendActivation = async function (id) {
 	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 	let otp = '';
 	for (let i = 0; i < 8; i++) otp += chars.at(randomInt(0, 35));
@@ -30,14 +30,55 @@ export const sendActivation = async function (id) {
 		from: 'NotesMan <notesman@zohomail.eu>',
 		to: accountEmail,
 		subject: 'NotesMan account activation',
-		text: `The code for activating your NotesMan account is ${otp} and it will expire after 10 minutes. If you didn't request a NotesMan account you can ignore this email.`,
+		text: `The code for activating your NotesMan account is ${otp} and it will expire after 10 minutes. If you didn't request a NotesMan account you can safely ignore this email.`,
 		html: `
       <body>
         <h1>NotesMan</h1>
         <hr/>
         <p>The code for activating your NotesMan account is</p>
         <h2><strong>${otp}</strong></h2>
+        <p>And it will expire after 10 minutes</p>
+        <hr/>
         <p>If you didn't request a NotesMan account you can safely ignore this email.</p> 
+      <style>
+      body {font-family: sans-serif;}
+      h2 {text-align: center;}
+      </style>
+    `
+	});
+};
+const sendNewEmailActivation = async function (id) {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	let otp = '';
+	for (let i = 0; i < 8; i++) otp += chars.at(randomInt(0, 35));
+	const d = new Date();
+	await sql`
+    delete from activations where user_id = ${id};
+  `;
+	await sql`
+    insert into activations(code_hash,user_id,created,expires) values
+    (
+      crypt(${otp},gen_salt('bf')),
+      ${id},
+      ${formatISO9075(d)},
+      ${formatISO9075(new Date(d.getTime() + 1000 * 10 * 60))}
+    )
+  `;
+	const [{ new_email: accountEmail }] = await sql`select new_email from users where id=${id}`;
+	const sentEmail = await mail.sendMail({
+		from: 'NotesMan <notesman@zohomail.eu>',
+		to: accountEmail,
+		subject: 'NotesMan account activation',
+		text: `The code for changing your NotesMan account email is ${otp} and it will expire after 10 minutes. If you didn't request a NotesMan account email change you can safely ignore this email.`,
+		html: `
+      <body>
+        <h1>NotesMan</h1>
+        <hr/>
+        <p>The code for changing your NotesMan account email is</p>
+        <h2><strong>${otp}</strong></h2>
+        <p>And it will expire after 10 minutes</p>
+        <hr/>
+        <p>If you didn't request a NotesMan account email change you can safely ignore this email.</p> 
       <style>
       body {font-family: sans-serif;}
       h2 {text-align: center;}
@@ -68,12 +109,67 @@ export const activate = async function (email, otp) {
 	});
 	if (!valid) return { code: 'BAD_CHAR', message: 'The code has non alphanumeric characters' };
 	const [{ id }] = await sql`select id from users where email=${email}`;
+	const [{ code_exists: codeExists }] =
+		await sql`select count(id)>0 code_exists from activations where user_id=${id}`;
+	const [{ activated: isActivated }] = await sql`select activated from users where id=${id}`;
+	if (!codeExists) {
+		if (!isActivated) {
+			sendActivation(id);
+			return {
+				code: 'NO_CODE',
+				message: 'The code you entered is expired or wrong. You will recieve a new code shortly.'
+			};
+		}
+		return { code: 'ACTIVATED', message: 'Your account is already activated.' };
+	}
 	const [{ is_correct: isCorrect, expired }] = await sql`
-    select code_hash=crypt(${otp},code_hash) as is_correct, extract(second from now()-expires) > 0 exprired
+    select code_hash=crypt(${otp},code_hash) as is_correct, extract(second from (now()-expires)) > 0 as expired
     from activations where user_id=${id}
   `;
-	if (!isCorrect) return { code: 'WRONG_CODE', message: 'Incorrect code' };
-	if (expired) return { code: 'EXP_CODE', message: 'Expired code' };
+	if (!isCorrect) return { code: 'WRONG_CODE', message: 'Incorrect code,' };
+	if (expired) {
+		await sql`delete from activations where user_id=${id}`;
+		sendActivation(id);
+		return {
+			code: 'EXP_CODE',
+			message: 'The code you entered is expired. You will recieve a new code shortly.'
+		};
+	}
+	await sql`update users set activated=true where id=${id}`;
+	await sql`delete from activations where user_id=${id}`;
+	return id;
+};
+export const activateNewEmail = async function (email, otp) {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	if (otp.length !== 8) return { code: 'BAD_LEN', message: 'The code should be 8 characters long' };
+	let valid = true;
+	otp.split('').forEach((char) => {
+		if (!chars.includes(char)) valid = false;
+	});
+	if (!valid) return { code: 'BAD_CHAR', message: 'The code has non alphanumeric characters' };
+	const [{ id }] = await sql`select id from users where new_email=${email}`;
+	const [{ code_exists: codeExists }] =
+		await sql`select count(id)>0 code_exists from activations where user_id=${id}`;
+	const [{ activated: isActivated }] =
+		await sql`select new_email_activated from users where id=${id}`;
+	if (!codeExists) {
+		return { code: 'ACTIVATED', message: 'Your new email is already activated.' };
+	}
+	const [{ is_correct: isCorrect, expired }] = await sql`
+    select code_hash=crypt(${otp},code_hash) as is_correct, extract(second from (now()-expires)) > 0 as expired
+    from activations where user_id=${id}
+  `;
+	if (!isCorrect) return { code: 'WRONG_CODE', message: 'Incorrect code,' };
+	if (expired) {
+		await sql`delete from activations where user_id=${id}`;
+		sendNewEmailActivation(id);
+		return {
+			code: 'EXP_CODE',
+			message: 'The code you entered is expired. You will recieve a new code shortly.'
+		};
+	}
+	await sql`update users set new_email_activated=true, email=new_email, new_email=null where id=${id}`;
+	await sql`delete from activations where user_id=${id}`;
 	return id;
 };
 
@@ -84,18 +180,24 @@ export const login = async function (email, password) {
     where email=${email} 
   `;
 	if (!res?.[0]?.id)
-		return { code: 'NOT_EXIST', message: "Account with entered email doesn't exist!" };
+		return { code: 'NOT_EXIST', message: "Account with entered email doesn't exist." };
 	const id = res[0].id;
-	const [{ activated: isActivated }] = await sql`
-    select activated
-    from users where id=${id};
-  `;
-	if (!isActivated) return { code: 'NOT_ACT', message: 'Account not activated!' };
 	const [{ is_correct: isCorrect }] = await sql`
     select password_hash=crypt(${password},password_hash) as is_correct
     from users where id=${id};
   `;
-	if (!isCorrect) return { code: 'WRONG_PAS', message: 'Wrong password!' };
+	if (!isCorrect) return { code: 'WRONG_PAS', message: 'Wrong password.' };
+	const [{ activated: isActivated }] = await sql`
+    select activated
+    from users where id=${id};
+  `;
+	if (!isActivated) {
+		sendActivation(id);
+		return {
+			code: 'NOT_ACT',
+			message: 'Account not activated. Redirecting you to the activation page.'
+		};
+	}
 	return id;
 };
 export const newSession = async function (id) {
@@ -153,8 +255,8 @@ export const logout = async function (sessionId) {
 };
 export const updateEmail = async function (sessionId, newEmail) {
 	const userId = (await sql`select user_id from sessions where id=${sessionId}`)[0].user_id;
-	// TODO: Trenutno ovo samo promeni imejl bez slanja verifikacije. SMTP server ni ne postoji u okviru programa
-	await sql`update users set email=${newEmail} where id=${userId}`;
+	await sql`update users set new_email=${newEmail}, new_email_activated=false where id=${userId}`;
+	await sendNewEmailActivation(userId);
 };
 export const updatePassword = async function (sessionId, oldPassword, newPassword) {
 	const userId = (await sql`select user_id from sessions where id=${sessionId}`)[0].user_id;

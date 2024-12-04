@@ -5,9 +5,9 @@ export async function load({ cookies }) {
 	const code = cookies.get('errorCode');
 	const message = cookies.get('errorMessage');
 	const email = cookies.get('email');
-	if (!email || email.length === 0) redirect(302, '/');
-	cookies.delete('errorCode', { path: '/activate' });
-	cookies.delete('errorMessage', { path: '/activate' });
+	if (!email || email.length === 0) redirect(302, '/app');
+	cookies.delete('errorCode', { path: '/confirm' });
+	cookies.delete('errorMessage', { path: '/confirm' });
 	return {
 		code,
 		message,
@@ -20,13 +20,13 @@ export const actions = {
 		const data = await request.formData();
 		const otp = data.get('code');
 		const email = cookies.get('email');
-		const user = await db.activate(email, otp);
+		const user = await db.activateNewEmail(email, otp);
 		if (user.code) {
-			cookies.set('errorCode', user.code, { path: '/activate' });
-			cookies.set('errorMessage', user.message, { path: '/activate' });
+			cookies.set('errorCode', user.code, { path: '/confirm' });
+			cookies.set('errorMessage', user.message, { path: '/confirm' });
 			return;
 		}
-		cookies.delete('email', { path: '/activate' });
+		cookies.delete('email', { path: '/confirm' });
 		const session = await db.newSession(user);
 		cookies.set('sessionid', session.id, { path: '/' });
 		cookies.set('sessionkey', session.key, { path: '/' });

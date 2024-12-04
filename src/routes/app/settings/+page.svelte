@@ -71,6 +71,8 @@
 	</form>
 </div>
 
+<!-- TODO: Password reset (login stranica), proveravanje jacine lozinke, login, signup, activate i confirm
+ stranice koje nisu samo html form sa tekstom-->
 <style lang="scss">
 	nav {
 		width: 100%;

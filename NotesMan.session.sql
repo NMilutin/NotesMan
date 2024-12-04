@@ -38,6 +38,8 @@ create table users(
   email text not null unique,
   password_hash text not null
 )
+alter table users add new_email text unique;
+alter table users add new_email_activated boolean default false; 
 
 alter table notes add user_id int not null;
 alter table tasks add user_id int not null;
@@ -51,8 +53,8 @@ alter table goals add foreign key (user_id) references users(id);
 /*create table sessions(
   id serial primary key,
   user_id int not null,
-  created timestamp default now() not null,
-  expires timestamp not null,
+  created timestamptz default now() not null,
+  expires timestamptz not null,
   foreign key (user_id) references users(id)
 );
 
@@ -77,8 +79,8 @@ create TABLE activations (
   id serial primary key,
   code_hash text not null,
   user_id int not null,
-  created timestamp default now() not null,
-  expires timestamp not null,
+  created timestamptz default now() not null,
+  expires timestamptz not null,
   foreign key (user_id) references users(id)
 )
 alter table activations add unique (user_id)

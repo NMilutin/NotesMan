@@ -40,7 +40,9 @@ export const actions = {
 			};
 		const data = await request.formData();
 		const newEmail = data.get('newEmail');
-		db.updateEmail(sessionId, newEmail);
+		await db.updateEmail(sessionId, newEmail);
+		cookies.set('email', newEmail, { path: '/confirm' });
+		redirect(302, '/confirm');
 	},
 	new_password: async ({ cookies, request }) => {
 		const { sessionId, valid } = await isSessionValid(cookies);
