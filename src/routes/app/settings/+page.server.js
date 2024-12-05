@@ -15,7 +15,14 @@ const isSessionValid = async function (cookies) {
 export const load = async function ({ cookies }) {
 	const { sessionId, valid } = await isSessionValid(cookies);
 	if (!valid) redirect(307, '/login');
-	return await db.loadState(sessionId);
+	const code = cookies.get('errorCode');
+	const message = cookies.get('errorMessage');
+	cookies.delete('errorCode', { path: '/app/settings' });
+	cookies.delete('errorMessage', { path: '/app/settings' });
+	const data = await db.loadState(sessionId);
+	data.code = code;
+	data.message = message;
+	return data;
 };
 
 export const actions = {
@@ -53,7 +60,12 @@ export const actions = {
 		const data = await request.formData();
 		const oldPassword = data.get('oldPassword');
 		const newPassword = data.get('newPassword');
-		db.updatePassword(sessionId, oldPassword, newPassword);
+		const msg = await db.updatePassword(sessionId, oldPassword, newPassword);
+		if (msg?.code) {
+			cookies.set('errorCode', msg.code, { path: '/app/settings' });
+			cookies.set('errorMessage', msg.message, { path: '/app/settings' });
+			return;
+		}
 	},
 	delete_account: async ({ cookies, request }) => {
 		const { sessionId, valid } = await isSessionValid(cookies);

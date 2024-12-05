@@ -87,17 +87,29 @@ const sendNewEmailActivation = async function (id) {
 	});
 };
 
-export const register = async function (email, password = '') {
+export const register = async function (email, password) {
+	const [{ email_exists: emailExists }] =
+		await sql`select count(id)>0 email_exists from users where email=${email};`;
+	if (emailExists)
+		return { code: 'EMAIL_EXISTS', message: 'The email you entered is already registered.' };
 	if (password.length < 8)
-		return { code: 'SHORT_PAS', message: 'Password must be at least 8 characters long' };
+		return { code: 'SHORT_PAS', message: 'Password must be at least 8 characters long.' };
 	if (password.length > 72)
-		return { code: 'LONG_PAS', message: "Password can't be longer than 72 characters" };
+		return { code: 'LONG_PAS', message: "Password can't be longer than 72 characters." };
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])/;
+	if (!regex.test(password))
+		return {
+			code: 'BAD_PAS',
+			message:
+				'Password must include at least one lowercase and uppercase letter, number and a special character.'
+		};
 	const [{ id }] = await sql`
     insert into users(email,password_hash) values
     (${email},crypt(${password},gen_salt('bf')))
     returning id;
   `;
 	await sendActivation(id);
+	return { code: 'OK', message: '' };
 };
 
 export const activate = async function (email, otp) {
@@ -259,12 +271,24 @@ export const updateEmail = async function (sessionId, newEmail) {
 	await sendNewEmailActivation(userId);
 };
 export const updatePassword = async function (sessionId, oldPassword, newPassword) {
+	if (newPassword.length < 8)
+		return { code: 'SHORT_PAS', message: 'Password must be at least 8 characters long.' };
+	if (newPassword.length > 72)
+		return { code: 'LONG_PAS', message: "Password can't be longer than 72 characters." };
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])/;
+	if (!regex.test(newPassword))
+		return {
+			code: 'BAD_PAS',
+			message:
+				'Password must include at least one lowercase and uppercase letter, number and a special character.'
+		};
 	const userId = (await sql`select user_id from sessions where id=${sessionId}`)[0].user_id;
 	const isOldPasswordCorrect = (
 		await sql`select password_hash=crypt(${oldPassword},password_hash) is_correct from users where id=${userId}`
 	)[0].is_correct;
 	if (isOldPasswordCorrect)
 		await sql`update users set password_hash=crypt(${newPassword},gen_salt('bf'))`;
+	else return { code: 'WRONG_PAS', message: 'Old password is not correct.' };
 };
 export const insert = {
 	async note(sessionId, name, text, date, bgColor, textColor) {

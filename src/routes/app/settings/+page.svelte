@@ -2,6 +2,7 @@
 	import Icon from '../../../lib/component/Icon.svelte';
 	import '$lib/style.scss';
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	const { data: loadData } = $props();
@@ -48,7 +49,17 @@
 		</label>
 		<button>Send Verification</button>
 	</form>
-	<form method="POST" action="?/new_password" use:enhance={({}) => {}} class="settings__password">
+	<form
+		method="POST"
+		action="?/new_password"
+		use:enhance={({}) => {
+			invalidateAll();
+		}}
+		class="settings__password"
+	>
+		{#if ['BAD_PAS', 'WRONG_PAS', 'SHORT_PAS', 'LONG_PAS'].includes(loadData.code)}
+			<div class="error"><Icon name="error"></Icon><span>{loadData?.message}</span></div>
+		{/if}
 		<label>
 			Old Password:
 			<input name="oldPassword" type="password" />
