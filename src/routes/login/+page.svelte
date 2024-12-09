@@ -30,3 +30,4 @@
 		<div class="error"><Icon name="error"></Icon><span>{data?.message}</span></div>
 	{/if}
 </form>
+<a href="/reset">Forgot Password?</a>

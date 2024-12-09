@@ -102,7 +102,7 @@
 	</div>
 {/if}
 
-<!-- TODO: email verification, dark mode, preferences local storage-->
+<!-- TODO: dark mode, preferences local storage-->
 <style lang="scss">
 	header {
 		display: flex;

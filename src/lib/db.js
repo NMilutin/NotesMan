@@ -6,7 +6,6 @@ import { formatISO9075 } from 'date-fns';
 import sql from './postgresClient';
 import mail from './mailClient';
 import { randomInt } from 'node:crypto';
-import { send } from 'vite';
 
 const sendActivation = async function (id) {
 	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
@@ -519,4 +518,27 @@ export const deleteAccount = async function (sessionId) {
     from users
     where id = ${id}
   `;
+};
+export const sendPasswordReset = async function (email) {
+	const [{ email_exists: emailExists }] = await sql`
+    select count(id)>0 email_exists from users where email=${email};
+  `;
+	if (!emailExists)
+		return {
+			code: 'NOT_REG',
+			message: 'The email you entered is not registered.'
+		};
+	const [{ id: userId }] = await sql`select id from users where email=${email}`;
+	const [{ key }] = await sql`
+    select crypt(concat(email,now()),gen_salt('bf')) as key
+    from users where id=${id}
+  `;
+	const [{ reset_link_uuid: resetLinkUUID }] = await sql`
+    insert into password_resets(user_id,reset_key_hash) values
+    (
+      ${userId},
+      crypt(${key},gen_salt('bf'))
+    ) returning reset_link_uuid
+  `;
+	// return resetLinkUUID;
 };

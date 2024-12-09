@@ -84,4 +84,12 @@ create TABLE activations (
   foreign key (user_id) references users(id)
 )
 alter table activations add unique (user_id)
+
+create table password_resets (
+  id serial primary key,
+  user_id int not null,
+  foreign key (user_id) references users(id),
+  reset_link_uuid uuid not null default gen_random_uuid() unique,
+  reset_key_hash text not null
+);
 */

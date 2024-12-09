@@ -120,7 +120,7 @@
 	button {
 		border: none;
 		background-color: inherit;
-		font-family: sans;
+		font-family: sans-serif;
 		font-size: 1em;
 		cursor: pointer;
 		outline: none;
