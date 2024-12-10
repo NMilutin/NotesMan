@@ -6,6 +6,7 @@ import { formatISO9075 } from 'date-fns';
 import sql from './postgresClient';
 import mail from './mailClient';
 import { randomInt } from 'node:crypto';
+import { link } from 'node:fs';
 
 const sendActivation = async function (id) {
 	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
@@ -286,7 +287,7 @@ export const updatePassword = async function (sessionId, oldPassword, newPasswor
 		await sql`select password_hash=crypt(${oldPassword},password_hash) is_correct from users where id=${userId}`
 	)[0].is_correct;
 	if (isOldPasswordCorrect)
-		await sql`update users set password_hash=crypt(${newPassword},gen_salt('bf'))`;
+		await sql`update users set password_hash=crypt(${newPassword},gen_salt('bf')) where id=${userId}`;
 	else return { code: 'WRONG_PAS', message: 'Old password is not correct.' };
 };
 export const insert = {
@@ -519,7 +520,7 @@ export const deleteAccount = async function (sessionId) {
     where id = ${id}
   `;
 };
-export const sendPasswordReset = async function (email) {
+export const sendPasswordReset = async function (email, host) {
 	const [{ email_exists: emailExists }] = await sql`
     select count(id)>0 email_exists from users where email=${email};
   `;
@@ -529,16 +530,66 @@ export const sendPasswordReset = async function (email) {
 			message: 'The email you entered is not registered.'
 		};
 	const [{ id: userId }] = await sql`select id from users where email=${email}`;
-	const [{ key }] = await sql`
-    select crypt(concat(email,now()),gen_salt('bf')) as key
-    from users where id=${id}
-  `;
+	const d = new Date();
 	const [{ reset_link_uuid: resetLinkUUID }] = await sql`
-    insert into password_resets(user_id,reset_key_hash) values
+    insert into password_resets(user_id,created,expires) values
     (
       ${userId},
-      crypt(${key},gen_salt('bf'))
+      ${formatISO9075(d)},
+      ${formatISO9075(new Date(d.getTime() + 1000 * 10 * 60))}
     ) returning reset_link_uuid
   `;
-	// return resetLinkUUID;
+	const sentEmail = await mail.sendMail({
+		from: 'NotesMan <notesman@zohomail.eu>',
+		to: email,
+		subject: 'NotesMan password reset',
+		text: `Click this link (https://${host}/reset/${resetLinkUUID})`,
+		html: `
+      <body>
+        <h1>NotesMan</h1>
+        <hr/>
+        <p>Click <a href="https://${host}/reset/${resetLinkUUID}">this</a> link to reset your NotesMan account password</p>
+        <hr/>
+        <p>If you didn't request a NotesMan account password reset, you can safely ignore this email.</p> 
+      <style>
+      body {font-family: sans-serif;}
+      h2 {text-align: center;}
+      </style>
+    `
+	});
+	return { succes: true };
+};
+export const resetPassword = async function (uuid, password) {
+	const [{ exists: linkExists }] =
+		await sql`select count(id)>0 exists from password_resets where reset_link_uuid=${uuid}`;
+	if (!linkExists)
+		return {
+			code: 'BAD_LINK',
+			message: 'Your password reset link is bad, try requesting a new password reset.'
+		};
+	const [{ expired: linkExpired }] =
+		await sql`select extract(second from (now()-expires)) > 0 as expired from password_resets where reset_link_uuid=${uuid}`;
+	if (linkExpired) {
+		await sql`delete from password_resets where reset_link_uuid=${uuid}`;
+		return {
+			code: 'EXP_LINK',
+			message: 'Your password reset link is expired, request a new one'
+		};
+	}
+	if (password.length < 8)
+		return { code: 'SHORT_PAS', message: 'Password must be at least 8 characters long.' };
+	if (password.length > 72)
+		return { code: 'LONG_PAS', message: "Password can't be longer than 72 characters." };
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])/;
+	if (!regex.test(password))
+		return {
+			code: 'BAD_PAS',
+			message:
+				'Password must include at least one lowercase and uppercase letter, number and a special character.'
+		};
+	const [{ id }] =
+		await sql`select user_id as id from password_resets where reset_link_uuid=${uuid}`;
+	await sql`update users set password_hash=crypt(${password},gen_salt('bf')) where id=${id}`;
+	await sql`delete from password_resets where reset_link_uuid=${uuid}`;
+	return { succes: true };
 };

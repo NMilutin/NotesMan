@@ -89,7 +89,9 @@ create table password_resets (
   id serial primary key,
   user_id int not null,
   foreign key (user_id) references users(id),
-  reset_link_uuid uuid not null default gen_random_uuid() unique,
-  reset_key_hash text not null
+  reset_link_uuid uuid not null default gen_random_uuid() unique
 );
+
+alter table password_resets add created timestamptz default now() not null;
+alter table password_resets add expires timestamptz not null; 
 */
