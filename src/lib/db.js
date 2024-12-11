@@ -455,7 +455,7 @@ export const backupData = async function (sessionId) {
   `;
 	const notes = Array.from(
 		await sql`
-    select name,text,date,background_color,text_color
+    select id,name,text,date,background_color,text_color
     from notes
     where user_id = ${id}
   `
@@ -476,12 +476,95 @@ export const backupData = async function (sessionId) {
 	);
 	const task_goal = Array.from(
 		await sql`
-    select task_id,goal_id
+    select task_goal.id,task_id,goal_id
     from task_goal join goals
     on goal_id = goals.id and user_id = ${id}
   `
 	);
-	return { notes, tasks, goals, task_goal };
+	return { user_id: id, notes, tasks, goals, task_goal };
+};
+export const restoreData = async function (sessionId, data) {
+	const [{ user_id: id }] = await sql`
+    select user_id
+    from sessions
+    where id = ${sessionId}
+  `;
+	const oldData = {
+		notes: Array.from(
+			await sql`
+    select id,name,text,date,background_color,text_color
+    from notes
+    where user_id = ${id}
+  `
+		),
+		tasks: Array.from(
+			await sql`
+    select id,name,text,date,background_color,text_color,done
+    from tasks
+    where user_id = ${id}
+  `
+		),
+		goals: Array.from(
+			await sql`
+    select id,name,text,date,background_color,text_color
+    from goals
+    where user_id = ${id}
+  `
+		),
+		task_goal: Array.from(
+			await sql`
+    select task_goal.id,task_id,goal_id
+    from task_goal join goals
+    on goal_id = goals.id and user_id = ${id}
+  `
+		)
+	};
+	data.notes.forEach((note) => {
+		const alreadyExists = oldData.notes.some((oldNote) => oldNote.id === note.id);
+		if (!alreadyExists)
+			insert.note(
+				sessionId,
+				note.name,
+				note.text,
+				note.date,
+				note.background_color,
+				note.text_color
+			);
+	});
+	const newTaskGoal = [];
+	data.tasks.forEach(async (task) => {
+		const alreadyExists = oldData.tasks.some((oldTask) => oldTask.id === task.id);
+		if (alreadyExists) return;
+		const newId = await insert.task(
+			sessionId,
+			task.name,
+			task.text,
+			task.date,
+			task.background_color,
+			task.text_color
+		);
+		newTaskGoal.push({
+			task_id: newId,
+			goal_id: data.task_goal.find((taskGoal) => taskGoal.task_id === task.id).goal_id
+		});
+	});
+	data.goals.forEach((goal) => {
+		const alreadyExists = oldData.goals.some((oldGoal) => oldGoal.id === goal.id);
+		if (alreadyExists) return;
+		const taskIds = newTaskGoal
+			.filter((taskGoal) => taskGoal.goal_id === goal.id)
+			.map((taskGoal) => taskGoal.task_id);
+		insert.goal(
+			sessionId,
+			goal.name,
+			goal.text,
+			goal.date,
+			goal.background_color,
+			goal.text_color,
+			...taskIds
+		);
+	});
+	return { succes: true };
 };
 export const deleteAccount = async function (sessionId) {
 	const [{ user_id: id }] = await sql`

@@ -102,7 +102,7 @@
 	</div>
 {/if}
 
-<!-- TODO: dark mode, preferences local storage-->
+<!-- TODO: dark mode, preferences local storage,email notifications, backup restoration, add image to note-->
 <style lang="scss">
 	header {
 		display: flex;

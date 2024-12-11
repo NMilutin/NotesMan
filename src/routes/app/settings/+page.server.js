@@ -75,5 +75,18 @@ export const actions = {
 			};
 		db.deleteAccount(sessionId);
 		redirect(307, '/');
+	},
+	upload: async ({ cookies, request }) => {
+		const { sessionId, valid } = await isSessionValid(cookies);
+		if (!valid)
+			return {
+				succes: false
+			};
+		const data = await request.formData();
+		const file = data.get('upload');
+		const json = await file.text();
+		const parsedData = JSON.parse(json);
+		const result = await db.restoreData(sessionId, parsedData);
+		if (result.succes) return;
 	}
 };

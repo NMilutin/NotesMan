@@ -4,6 +4,7 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { sub } from 'date-fns';
 
 	const { data: loadData } = $props();
 
@@ -19,8 +20,36 @@
 		a.click();
 		URL.revokeObjectURL(blobURL);
 	};
+	const startFilePicker = function () {
+		const fileInput = document.getElementById('upload');
+		fileInput.click();
+	};
+	const upload = function (fileInput) {
+		const submit = fileInput.closest('form').querySelector('input[type="submit"]');
+		submit.click();
+	};
 </script>
 
+<form
+	style="display: none"
+	method="POST"
+	action="?/upload"
+	enctype="multipart/form-data"
+	use:enhance={({}) => {
+		invalidateAll();
+	}}
+>
+	<input
+		onchange={(e) => {
+			upload(e.target);
+		}}
+		name="upload"
+		id="upload"
+		type="file"
+		accept="application/json"
+	/>
+	<input type="submit" />
+</form>
 <nav>
 	<form
 		action="?/none"
@@ -74,6 +103,9 @@
 		<button onclick={download}
 			><Icon name="btn-backup" width="1.5em"></Icon><span>Download Data</span></button
 		>
+		<button onclick={startFilePicker}
+			><Icon name="upload" width="1.5em"></Icon><span>Restore Data</span></button
+		>
 	</div>
 	<form method="POST" action="?/delete_account" use:enhance={({}) => {}} class="settings__delete">
 		<button class="delete-account">
@@ -82,7 +114,7 @@
 	</form>
 </div>
 
-<!-- TODO: Password reset (login stranica), proveravanje jacine lozinke, login, signup, activate i confirm
+<!-- TODO: login, signup, activate i confirm
  stranice koje nisu samo html form sa tekstom-->
 <style lang="scss">
 	nav {
