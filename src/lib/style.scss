@@ -5,6 +5,10 @@
 	padding: 0;
 	font-family: sans-serif;
 	font-size: 16px;
+	*.darkmode {
+		color: #e7e7e7;
+		background-color: #2f3131;
+	}
 }
 html {
 	min-height: 100vh;

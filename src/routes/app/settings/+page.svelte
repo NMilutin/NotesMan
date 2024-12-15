@@ -28,6 +28,21 @@
 		const submit = fileInput.closest('form').querySelector('input[type="submit"]');
 		submit.click();
 	};
+	let darkMode = $state(false);
+	darkMode = JSON.parse(window.localStorage.getItem('darkMode')) ?? false;
+	const toggleDarkMode = function () {
+		if (darkMode === true) {
+			window.localStorage.setItem('darkMode', false);
+			darkMode = false;
+		} else {
+			window.localStorage.setItem('darkMode', true);
+			darkMode = true;
+		}
+	};
+	$effect((darkMode) => {
+		if (darkMode) document.body.classList.add('darkmode');
+		else document.body.classList.remove('darkmode');
+	});
 </script>
 
 <form
@@ -112,6 +127,14 @@
 			<Icon name="note-del" width="1.5em"></Icon><span>Delete Account</span></button
 		>
 	</form>
+	<div class="settings__preferences">
+		<button onclick={toggleDarkMode} {darkMode}
+			>{#if !darkMode}<Icon name="sun" width="1.5em"></Icon>{/if}{#if darkMode}<Icon
+					name="moon"
+					width="1.5em"
+				></Icon>{/if}</button
+		>
+	</div>
 </div>
 
 <!-- TODO: login, signup, activate i confirm

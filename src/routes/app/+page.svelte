@@ -12,6 +12,7 @@
 	import NoteMenu from '$lib/component/NoteMenu.svelte';
 	import TaskEditMenu from '$lib/component/TaskEditMenu.svelte';
 	import GoalEditMenu from '$lib/component/GoalEditMenu.svelte';
+	import Spinner from '$lib/component/Spinner.svelte';
 	import '$lib/style.scss';
 	import * as stateJs from '$lib/state.svelte.js';
 	import { enhance } from '$app/forms';
@@ -102,7 +103,7 @@
 	</div>
 {/if}
 
-<!-- TODO: dark mode, preferences local storage,email notifications, backup restoration, add image to note-->
+<!-- TODO: load spinner,dark mode, preferences local storage,email notifications, backup restoration, add image to note-->
 <style lang="scss">
 	header {
 		display: flex;
