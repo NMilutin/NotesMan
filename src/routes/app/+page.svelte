@@ -103,7 +103,13 @@
 	</div>
 {/if}
 
-<!-- TODO: load spinner,dark mode, preferences local storage,email notifications, backup restoration, add image to note-->
+<!-- PRIORITY: KORISTI CSS VARS ZA BOJE KREMBILU -->
+<!-- TODO: load spinner -->
+<!-- TODO: dark mode -->
+<!-- TODO: email notifications -->
+<!-- TODO: backup restoration -->
+<!-- TODO: add image to note -->
+<!-- TODO: login, signup, activate i confirm stranice koje nisu samo html form sa tekstom -->
 <style lang="scss">
 	header {
 		display: flex;

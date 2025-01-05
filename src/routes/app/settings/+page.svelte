@@ -137,8 +137,6 @@
 	</div>
 </div>
 
-<!-- TODO: login, signup, activate i confirm
- stranice koje nisu samo html form sa tekstom-->
 <style lang="scss">
 	nav {
 		width: 100%;
