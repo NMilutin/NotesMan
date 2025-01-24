@@ -23,3 +23,43 @@ html {
 button {
 	outline: none;
 }
+body.darkmode {
+	nav,
+	div.settings,
+	.note__types,
+	.task-prev,
+	.task-next,
+	form.create-menu {
+		.icon {
+			fill: #fff;
+		}
+	}
+	.note-add__icon {
+		fill: #fff;
+	}
+	button {
+		color: #fff;
+	}
+	input {
+		color: #fff;
+		background-color: #2f3131;
+	}
+	.note-type {
+		border-bottom: #343434 solid 5px !important;
+		&:hover:not(&__active) {
+			border-color: #ababab !important;
+		}
+		&__active {
+			border-color: #fff !important;
+		}
+	}
+}
+form.create-menu {
+	background-color: #343434 !important;
+	color: #e7e7e7;
+	textarea,
+	input {
+		color: #fff;
+		background-color: #343434;
+	}
+}

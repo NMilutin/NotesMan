@@ -2,6 +2,7 @@
 	let { data = $bindable(), state } = $props();
 	import Icon from '$lib/component/Icon.svelte';
 	import { enhance } from '$app/forms';
+	import '$lib/style.scss';
 </script>
 
 <form

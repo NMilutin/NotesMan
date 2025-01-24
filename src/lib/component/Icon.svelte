@@ -99,7 +99,7 @@
 </script>
 
 <svg
-	class={$$props.class}
+	class={$$props.class ?? 'icon'}
 	{focusable}
 	{width}
 	{height}

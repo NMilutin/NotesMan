@@ -541,7 +541,8 @@ export const restoreData = async function (sessionId, data) {
 			task.text,
 			task.date,
 			task.background_color,
-			task.text_color
+			task.text_color,
+			task.done
 		);
 		newTaskGoal.push({
 			task_id: newId,

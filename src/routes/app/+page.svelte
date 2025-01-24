@@ -99,17 +99,16 @@
 		{#if data.goalCreateMenuOn}<GoalCreateMenu {data} state={stateJs}></GoalCreateMenu>{/if}
 		{#if data.noteMenuOn}<NoteMenu {data} state={stateJs}></NoteMenu>{/if}
 		{#if data.taskEditMenuOn}<TaskEditMenu {data} state={stateJs}></TaskEditMenu>{/if}
-		{#if data.goalEditMenuOn}<GoalEditMenu {data} state={stateJs}></GoalEditMenu>{/if}
+		{#if data.goalEditMenuOn}<GoalEditMenu {data} {stateJs}></GoalEditMenu>{/if}
 	</div>
 {/if}
 
-<!-- PRIORITY: KORISTI CSS VARS ZA BOJE KREMBILU -->
 <!-- TODO: load spinner -->
-<!-- TODO: dark mode -->
 <!-- TODO: email notifications -->
-<!-- TODO: backup restoration -->
+<!-- TODO: backup restoration task done status i task_goal-->
 <!-- TODO: add image to note -->
 <!-- TODO: login, signup, activate i confirm stranice koje nisu samo html form sa tekstom -->
+<!-- TODO: RESPONSIVE!!! -->
 <style lang="scss">
 	header {
 		display: flex;
@@ -187,6 +186,7 @@
 		animation: fadein 0.3s ease-in-out;
 		display: flex;
 		justify-content: center;
+		align-items: center;
 	}
 
 	@keyframes fadein {

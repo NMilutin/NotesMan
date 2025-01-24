@@ -39,7 +39,7 @@
 			darkMode = true;
 		}
 	};
-	$effect((darkMode) => {
+	$effect(() => {
 		if (darkMode) document.body.classList.add('darkmode');
 		else document.body.classList.remove('darkmode');
 	});

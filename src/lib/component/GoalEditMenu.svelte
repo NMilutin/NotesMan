@@ -1,17 +1,26 @@
 <script>
-	let { data = $bindable(), state } = $props();
+	let { data = $bindable(), stateJs } = $props();
 
 	import Icon from '$lib/component/Icon.svelte';
+	import Spinner from '$lib/component/Spinner.svelte';
 	import { enhance } from '$app/forms';
+	$effect(() => {
+		if (data?.code) loading = false;
+	});
+	let loading = $state(false);
 </script>
 
+{#if loading}
+	<Spinner width="3em"></Spinner>
+{/if}
 <form
 	method="POST"
 	use:enhance={({ formData, submitter, cancel }) => {
+		loading = true;
 		if (submitter.classList.contains('goal-del')) {
 			formData.append('goalIdDelete', data.activeObject.id);
 			return async () => {
-				state.delGoal(data.activeObject);
+				stateJs.delGoal(data.activeObject);
 			};
 		}
 		if (submitter.classList.contains('goal-accept')) {
@@ -19,14 +28,14 @@
 			formData.append('goalIdUpdate', data.activeObject.id);
 			formData.append('taskIds', JSON.stringify(taskIds));
 			return async () => {
-				state.confirmGoalEdit();
+				stateJs.confirmGoalEdit();
 			};
 		} else {
 			cancel();
 			return;
 		}
 	}}
-	class="goal"
+	class={`goal ${loading ? 'hidden' : ''}`}
 	style={`--background-color:${data.activeObject.backgroundColor}; --text-color:${data.activeObject.textColor}`}
 >
 	<!-- svelte-ignore a11y_missing_content -->
@@ -40,7 +49,7 @@
 				<div class="goal-create__task">
 					<span>{task.name}</span><button
 						onclick={function () {
-							state.addInputGoalTask(task);
+							stateJs.addInputGoalTask(task);
 						}}><Icon name="btn-move" width="1.5em"></Icon></button
 					>
 				</div>
@@ -50,7 +59,7 @@
 			{#each data.input.tasks as task, i}<div class="goal-create__task">
 					<span>{task.name}</span><button
 						onclick={function () {
-							state.removeInputGoalTask(i);
+							stateJs.removeInputGoalTask(i);
 						}}><Icon name="btn-move" width="1.5em"></Icon></button
 					>
 				</div>{/each}
@@ -86,6 +95,10 @@
 		flex-direction: column;
 		gap: 1em;
 		position: relative;
+		&.hidden {
+			position: absolute;
+			top: -99999px;
+		}
 		* {
 			color: var(--text-color);
 		}
